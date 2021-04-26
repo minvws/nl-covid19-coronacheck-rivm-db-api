@@ -1,15 +1,15 @@
 """Router that serves the endpoints"""
 from functools import wraps
 
-from flask import Blueprint, current_app, jsonify, request, make_response
-from event_provider.database import check_information, get_events
+from flask import Blueprint, jsonify, request, make_response
+from event_provider.interface import check_information, get_events
 from event_provider.config import config
 
 api = Blueprint('api', __name__)
 
 PROTOCOL_VERSION = "3.0"
 
-PROVIDER_IDENTIFIER = "BGP"
+PROVIDER_IDENTIFIER = config.get('identifier', 'BGP')
 
 def require_headers(func):
     """Decorator to check if headers are correct"""
