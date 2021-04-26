@@ -3,6 +3,7 @@ from functools import wraps
 
 from flask import Blueprint, current_app, jsonify, request, make_response
 from event_provider.database import check_information, get_events
+from event_provider.config import config
 
 api = Blueprint('api', __name__)
 
@@ -27,6 +28,7 @@ def require_headers(func):
         if not auth:
             return make_response("Missing Authorization Request Header", 400)
 
+        kwargs['auth'] = auth
 
         return func(*args, **kwargs)
 
