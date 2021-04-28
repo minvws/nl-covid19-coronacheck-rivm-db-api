@@ -31,7 +31,7 @@ def check_info_db(id_hash):
     res = None
     with conn.cursor() as cur:
         cur.execute(sql, [id_hash])
-        res = cur.fetchone()[0]
+        res = cur.fetchone()
     conn.commit()
     log_request(id_hash)
     return res
