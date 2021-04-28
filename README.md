@@ -39,6 +39,15 @@ It then returns the following data:
 ```
 Where `ENCRYPTED_BSN` is the bsn encrypted with libsodium, `NONCE` is the encryption nonce, `KEYID` is the keyid of the cert, and `ID_HASH` follows the format as above. `ID_HASH` is only used for logging purposes.
 
+It then returns the following data:
+
+```
+{
+	'providerIdentifier': 'BGP'.
+	'events': [a list, of, event payloads]
+}
+```
+
 ## Setup
 
 To setup inge-5, simply run the following commands:
