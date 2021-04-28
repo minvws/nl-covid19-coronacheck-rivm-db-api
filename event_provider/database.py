@@ -32,7 +32,8 @@ def write_connection():
 
 def log_request(id_hash):
     """Log the request to the db"""
-    sql = "INSERT INTO vaccinatie_event_logging (created_date, bsn_external, channel, created_at) VALUES (%s,%s,%s,CURRENT_TIMESTAMP);"
+    sql = """INSERT INTO vaccinatie_event_logging (created_date, bsn_external, channel, created_at)
+                VALUES (%s,%s,%s,CURRENT_TIMESTAMP);"""
     conn = write_connection()
     curr_date, _ = datetime.datetime.now().isoformat().split("T")
     with conn.cursor() as cur:

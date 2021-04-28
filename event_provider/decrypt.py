@@ -9,10 +9,11 @@ from flask import current_app, g
 
 
 class MismatchKeyIdError(Exception):
-    pass
+    """Generic exception for mismatching keyid"""
 
 
-class Decryptor:
+class Decryptor: #pylint: disable=too-few-public-methods
+    """Decryptor class which simply holds data written from disk"""
     def __init__(self):
         keyfile = current_app.config["DEFAULT"]["bsn_decrypt_key"]
         key, keyid = rawkey_from_file(keyfile)
@@ -23,6 +24,7 @@ class Decryptor:
 
 
 def get_decryptor():
+    """Add decryptor to globals if it's not there yet"""
     if not hasattr(g, "decryptor"):
         g.decryptor = Decryptor()
     return g.decryptor
@@ -55,8 +57,8 @@ def decrypt_payload(payload, nonce, keyid):
         )
     return decrypt(payload, nonce, key)
 
-
 def decrypt(data, nonce, key):
+    """Generic decrypt function"""
     box = nacl.secret.SecretBox(key.encode(), encoder=Base64Encoder)
     nonce = Base64Encoder.decode(nonce)
     decrypted = box.decrypt(data, nonce, encoder=Base64Encoder).decode()
@@ -64,6 +66,7 @@ def decrypt(data, nonce, key):
 
 
 def rawkey_from_file(keyfile):
+    """Get rawkey from file"""
     try:
         with open(keyfile, "r") as infile:
             rawkey = infile.read().strip()
@@ -76,21 +79,23 @@ def rawkey_from_file(keyfile):
 
 
 def get_key_id_from_private_key(privkey):
+    """Get keyid from private rawkey data"""
     if isinstance(privkey, str):
         privkey = privkey.encode("ASCII")
 
     if len(privkey) < 50:
         privkey = encode(decode(privkey, "base64"), "hex").decode("ASCII")
     pubkey = encode(
-        PrivateKey(
+        PrivateKey( # pylint: disable=protected-access
             privkey, encoder=HexEncoder
-        ).public_key._public_key,  # pylint: disable=protected-access
+        ).public_key._public_key,
         "base64",
     ).decode("ASCII")
     return get_key_id_from_public_key(pubkey).strip()
 
 
 def get_key_id_from_public_key(pubkey):
+    """Get keyid from public rawkey data"""
     if isinstance(pubkey, str):
         pubkey = pubkey.encode("ASCII")
     if len(pubkey) < 50:

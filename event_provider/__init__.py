@@ -1,3 +1,4 @@
+"""Module Script to start Flask properly"""
 from os.path import isfile
 
 from flask import Flask, g
@@ -6,11 +7,11 @@ from .config import config
 
 
 class ConfigurationException(Exception):
-    pass
+    """Generic Exception for Configuration Issues"""
 
 
 def create_app():
-    # create and configure the app
+    """create and configure the app"""
     app = Flask(__name__)
     # app.logger.setLevel(logging.INFO)
 
@@ -27,7 +28,7 @@ def create_app():
     app.config["database_read"] = config["database_read"]
 
     @app.teardown_appcontext
-    def close_db(error):
+    def close_db(_): # pylint: disable=unused-variable
         """Closes the database again at the end of the request."""
         if hasattr(g, "read_db"):
             g.read_db.close()
@@ -40,6 +41,7 @@ def create_app():
 
 
 def check_config():
+    """Check if the config was setup properly"""
     if "database_write" not in config:
         raise ConfigurationException(
             "database_write section is missing from config file"

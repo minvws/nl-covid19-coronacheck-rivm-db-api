@@ -14,8 +14,11 @@ def post_information():
     data = request.get_json()
     if not data:
         return make_response("Missing request body", 400)
-    if "identity_hash" not in data:
-        return make_response("Missing 'identity_hash' field in request body", 400)
+    required = ["identity_hash"]
+    try:
+        check_data(data, required)
+    except MissingDataException as err:
+        return make_response(str(err), 400)
     id_hash = data["identity_hash"]
     check = check_information(id_hash)
     resp = {"providerIdentifier": provider_identifier, "informationAvailable": check}
@@ -29,17 +32,14 @@ def post_events():
     data = request.get_json()
     if not data:
         return make_response("Missing request body", 400)
-    if "bsn" not in data:
-        return make_response("Missing 'bsn' field in request body", 400)
+    required = ["bsn", "nonce", "keyid", "id_hash"]
+    try:
+        check_data(data, required)
+    except MissingDataException as err:
+        return make_response(str(err), 400)
     bsn = data["bsn"]
-    if "nonce" not in data:
-        return make_response("Missing 'nonce' field in request body", 400)
     nonce = data["nonce"]
-    if "keyid" not in data:
-        return make_response("Missing 'keyid' field in request body", 400)
     keyid = data["keyid"]
-    if "id_hash" not in data:
-        return make_response("Missing 'id_hash' field in request body", 400)
     id_hash = data["id_hash"]
     try:
         events = get_events(bsn, nonce, keyid, id_hash)
@@ -47,3 +47,12 @@ def post_events():
         return make_response(str(err), 400)
     resp = {"providerIdentifier": provider_identifier, "events": events}
     return jsonify(resp)
+
+class MissingDataException(Exception):
+    """Generic Exception for Missing Data"""
+
+def check_data(data, required):
+    """Check if a list of keys are in a given dict"""
+    for key in required:
+        if key not in data:
+            raise MissingDataException("Missing '" + str(key) + "' field in request body")
