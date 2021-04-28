@@ -1,0 +1,18 @@
+[DEFAULT]
+decrypt_bsn_key = secrets/bsn.key
+decrypt_payload_key = secrets/db.key
+identifier = BGP
+
+[database_read]
+host = localhost
+port = 5433
+user = reader
+password = reader
+database = vcbe_db
+
+[database_write]
+host = localhost
+port = 5433
+user = writer
+password = writer
+database = vcbe_db
