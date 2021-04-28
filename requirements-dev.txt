@@ -1,0 +1,8 @@
+pytest
+black
+bandit
+autoflake
+coverage
+pip-tools
+requests-mock
+pylint
