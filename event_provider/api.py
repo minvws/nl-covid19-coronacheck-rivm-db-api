@@ -7,25 +7,6 @@ from event_provider.decrypt import MismatchKeyIdError
 
 api = Blueprint('api', __name__)
 
-PROTOCOL_VERSION = "3.0"
-
-def require_headers(func):
-    """Decorator to check if headers are correct"""
-    @wraps(func)
-    def decorator(*args, **kwargs):
-
-        protocol_version = request.headers.get('CoronaCheck-Protocol-Version')
-
-        if not protocol_version:
-            return make_response("Missing CoronaCheck-Protocol-Version Request Header", 400)
-        if protocol_version.strip() != PROTOCOL_VERSION:
-            return make_response("Protocol version mismatch, expecting: " + PROTOCOL_VERSION, 412)
-
-        return func(*args, **kwargs)
-
-    return decorator
-
-@require_headers
 @api.route('/information', methods=['POST'])
 def post_information():
     """POST endpoint to check if information is available for a specific identity hash"""
@@ -38,13 +19,11 @@ def post_information():
     id_hash = data['identity_hash']
     check = check_information(id_hash)
     resp = {
-        "protocolVersion": PROTOCOL_VERSION,
         "providerIdentifier": provider_identifier,
         "informationAvailable": check
     }
     return jsonify(resp)
 
-@require_headers
 @api.route('/events', methods=['POST'])
 def post_events():
     """POST endpoint to get available events belonging to a specific identity hash"""
@@ -69,9 +48,7 @@ def post_events():
     except MismatchKeyIdError as err:
         return make_response(str(err), 400)
     resp = {
-        "protocolVersion": PROTOCOL_VERSION,
         "providerIdentifier": provider_identifier,
-        "status": "complete",
         "events": events
     }
     return jsonify(resp)
