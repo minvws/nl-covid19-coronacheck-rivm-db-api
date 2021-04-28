@@ -65,7 +65,7 @@ And modify the config file as needed.
 
 inge-5 is a basic Flask project with the name of `event_provider`. To start it, simply run the following command:
 
-`FLASK_APP=event_provider flask run`
+`make run`
 
 It runs on `http://localhost:5000/` by default.
 
