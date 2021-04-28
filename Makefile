@@ -61,11 +61,7 @@ pip-compile-upgrade:
 	. .venv/bin/activate; python3 -m piptools compile requirements-dev.in --upgrade
 
 test: venv ## Run all tests
-	. .venv/bin/activate; FLASK_APP=event_provider pytest -vv --cov=geoproxy --no-cov-on-fail tests/
+	. .venv/bin/activate; coverage run -m pytest -vv
 
 test-report: venv
 	. .venv/bin/activate; coverage report
-
-testcase: venv ## Perform a single testcase, for example make testcase case=my_test
-	# add -s to pytest to see live debugging output, add --full-trace  for full tracing of errors.
-	@. .venv/bin/activate; python -m pytest -s -vvv -k ${case}

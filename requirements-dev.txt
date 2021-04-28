@@ -1,8 +1,8 @@
 pytest
+pytest-cov
 black
 bandit
 autoflake
 coverage
 pip-tools
-requests-mock
 pylint
