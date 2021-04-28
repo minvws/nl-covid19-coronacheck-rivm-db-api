@@ -3,17 +3,32 @@ import datetime
 import psycopg2
 from flask import current_app, g
 
+
 def read_connection():
     """Get the psycopg2 connection for the read socket"""
-    if not hasattr(g, 'read_db'):
-        g.read_db = psycopg2.connect(**{k: v for k, v in current_app.config['database_read'].items() if k not in current_app.config['DEFAULT']})
+    if not hasattr(g, "read_db"):
+        g.read_db = psycopg2.connect(
+            **{
+                k: v
+                for k, v in current_app.config["database_read"].items()
+                if k not in current_app.config["DEFAULT"]
+            }
+        )
     return g.read_db
+
 
 def write_connection():
     """Get the psycopg2 connection for the write socket"""
-    if not hasattr(g, 'write_db'):
-        g.write_db = psycopg2.connect(**{k: v for k, v in current_app.config['database_write'].items() if k not in current_app.config['DEFAULT']})
+    if not hasattr(g, "write_db"):
+        g.write_db = psycopg2.connect(
+            **{
+                k: v
+                for k, v in current_app.config["database_write"].items()
+                if k not in current_app.config["DEFAULT"]
+            }
+        )
     return g.write_db
+
 
 def log_request(id_hash):
     """Log the request to the db"""
@@ -21,8 +36,11 @@ def log_request(id_hash):
     conn = write_connection()
     curr_date, _ = datetime.datetime.now().isoformat().split("T")
     with conn.cursor() as cur:
-        cur.execute(sql, [curr_date, id_hash, current_app.config.get('identfier', "BGP")])
+        cur.execute(
+            sql, [curr_date, id_hash, current_app.config.get("identfier", "BGP")]
+        )
     conn.commit()
+
 
 def check_info_db(id_hash):
     """Query the DB if a given id_hash has info"""
@@ -35,6 +53,7 @@ def check_info_db(id_hash):
     conn.commit()
     log_request(id_hash)
     return res
+
 
 def get_events_db(bsn, id_hash):
     """Get all the payloads in the DB belonging to a certain id_hash"""
