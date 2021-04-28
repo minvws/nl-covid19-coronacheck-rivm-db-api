@@ -1,0 +1,3 @@
+pynacl
+psycopg2
+flask
