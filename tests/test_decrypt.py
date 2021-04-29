@@ -18,15 +18,14 @@ def keyfile():
     return config['DEFAULT']['decrypt_bsn_key']
 
 def encrypt_payload(data, nonce, keyfile):
-    keyid, key = rawkey_from_file(keyfile)
+    key = rawkey_from_file(keyfile)
     box = nacl.secret.SecretBox(key.encode(), encoder=Base64Encoder)
     enc_data = box.encrypt(data.encode(), nonce, encoder=Base64Encoder)
     nonce = enc_data.nonce.decode()
     ctext = enc_data.ciphertext.decode()
     payload = {
         'nonce': nonce,
-        'ctext': ctext,
-        'keyid': keyid
+        'ctext': ctext
     }
     return payload
 

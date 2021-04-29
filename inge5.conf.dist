@@ -1,7 +1,6 @@
 [DEFAULT]
 decrypt_bsn_key = secrets/bsn.key
 decrypt_payload_key = secrets/db.key
-identifier = BGP
 
 [database_read]
 host = localhost

@@ -10,9 +10,9 @@ def check_information(id_hash):
     return bool(res)
 
 
-def get_events(enc_bsn, nonce, keyid, id_hash):
+def get_events(enc_bsn, nonce, id_hash):
     """Get all events belonging to a certain bsn"""
-    bsn = decrypt_bsn(enc_bsn, nonce, keyid)
+    bsn = decrypt_bsn(enc_bsn, nonce)
     data = get_events_db(bsn, id_hash)
     res = convert_payloads(data)
     return res
@@ -24,6 +24,6 @@ def convert_payloads(data):
     for payload in data:
         payload = json.dumps(payload[0])
         payloads.extend(
-            decrypt_payload(payload["ctext"], payload["nonce"], payload["keyid"])
+            decrypt_payload(payload["ctext"], payload["nonce"])
         )
     return payloads

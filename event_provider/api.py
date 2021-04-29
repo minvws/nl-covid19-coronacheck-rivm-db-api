@@ -1,16 +1,15 @@
 """Router that serves the endpoints"""
 
-from flask import Blueprint, jsonify, request, make_response, current_app
+from flask import Blueprint, jsonify, request, make_response
 from event_provider.interface import check_information, get_events
 from event_provider.decrypt import MismatchKeyIdError
 
 api = Blueprint("api", __name__)
 
 
-@api.route("/information", methods=["POST"])
+@api.route("/v1/check-bsn", methods=["POST"])
 def post_information():
     """POST endpoint to check if information is available for a specific identity hash"""
-    provider_identifier = current_app.config["DEFAULT"].get("identifier", "BGP")
     data = request.get_json()
     if not data:
         return make_response("Missing request body", 400)
@@ -21,31 +20,29 @@ def post_information():
         return make_response(str(err), 400)
     id_hash = data["identity_hash"]
     check = check_information(id_hash)
-    resp = {"providerIdentifier": provider_identifier, "informationAvailable": check}
+    resp = {"informationAvailable": check}
     return jsonify(resp)
 
 
-@api.route("/events", methods=["POST"])
+@api.route("/v1/vaccinaties", methods=["POST"])
 def post_events():
     """POST endpoint to get available events belonging to a specific identity hash"""
-    provider_identifier = current_app.config["DEFAULT"].get("identifier", "BGP")
     data = request.get_json()
     if not data:
         return make_response("Missing request body", 400)
-    required = ["bsn", "nonce", "keyid", "id_hash"]
+    required = ["bsn", "nonce", "id_hash"]
     try:
         check_data(data, required)
     except MissingDataException as err:
         return make_response(str(err), 400)
     bsn = data["bsn"]
     nonce = data["nonce"]
-    keyid = data["keyid"]
     id_hash = data["id_hash"]
     try:
-        events = get_events(bsn, nonce, keyid, id_hash)
+        events = get_events(bsn, nonce, id_hash)
     except MismatchKeyIdError as err:
         return make_response(str(err), 400)
-    resp = {"providerIdentifier": provider_identifier, "events": events}
+    resp = {"events": events}
     return jsonify(resp)
 
 class MissingDataException(Exception):
