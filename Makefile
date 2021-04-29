@@ -61,7 +61,4 @@ pip-compile-upgrade:
 	. .venv/bin/activate; python3 -m piptools compile requirements-dev.in --upgrade
 
 test: venv ## Run all tests
-	. .venv/bin/activate; coverage run -m pytest -vv
-
-test-report: venv
-	. .venv/bin/activate; coverage report
+	. .venv/bin/activate; FLASK_APP=event_provider pytest -vv --cov=event_provider --no-cov-on-fail tests/
