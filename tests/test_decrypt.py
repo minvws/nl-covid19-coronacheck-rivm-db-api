@@ -1,12 +1,14 @@
-from event_provider.decrypt import rawkey_from_file, decrypt
-from event_provider.config import config
-
+import json
 import nacl.secret
 import nacl.utils
 import nacl.hash
 from nacl.encoding import Base64Encoder
+
+from event_provider.decrypt import rawkey_from_file, decrypt, decrypt_bsn, decrypt_payload, get_decryptor, Decryptor
+from event_provider.config import config
+
+from flask import g
 import pytest
-import json
 
 @pytest.fixture
 def rnonce():
@@ -14,8 +16,12 @@ def rnonce():
     return nonce
 
 @pytest.fixture
-def keyfile():
+def bsn_key():
     return config['DEFAULT']['decrypt_bsn_key']
+
+@pytest.fixture
+def payload_key():
+    return config['DEFAULT']['decrypt_payload_key']
 
 def encrypt_payload(data, nonce, keyfile):
     key = rawkey_from_file(keyfile)
@@ -29,11 +35,35 @@ def encrypt_payload(data, nonce, keyfile):
     }
     return payload
 
-def test_decryption(rnonce, keyfile):
+def test_decryption(rnonce, bsn_key):
     data = {
         'test': 'test'
     }
-    encrypted = encrypt_payload(json.dumps(data), rnonce, keyfile)
-    _, key = rawkey_from_file(keyfile)
+    encrypted = encrypt_payload(json.dumps(data), rnonce, bsn_key)
+    key = rawkey_from_file(bsn_key)
     decrypted = decrypt(encrypted['ctext'], encrypted['nonce'], key)
     assert json.loads(decrypted) == data
+
+def test_get_decryptor(context):
+    with context:
+        assert not hasattr(g, 'decryptor')
+        decryptor = get_decryptor()
+        assert hasattr(g, 'decryptor')
+        assert isinstance(decryptor, Decryptor)
+        assert decryptor == g.decryptor
+
+def test_decrypt_bsn(context, bsn_key, rnonce):
+    bsn = "000000012"
+    encrypted = encrypt_payload(bsn, rnonce, bsn_key)
+    with context:
+        decrypted = decrypt_bsn(encrypted['ctext'], encrypted['nonce'])
+    assert decrypted == bsn
+
+def test_decrypt_payload(context, payload_key, rnonce):
+    payload = {
+        "test": "test"
+    }
+    encrypted = encrypt_payload(json.dumps(payload), rnonce, payload_key)
+    with context:
+        decrypted = decrypt_payload(encrypted['ctext'], encrypted['nonce'])
+    assert json.loads(decrypted) == payload
