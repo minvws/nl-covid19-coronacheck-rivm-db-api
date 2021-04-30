@@ -17,10 +17,10 @@ clean:  ## Remove the virtual environment
 	@rm -rf .venv
 
 run: venv
-	. .venv/bin/activate; FLASK_APP=event_provider FLASK_ENV=development python -m flask run
+	. .venv/bin/activate; FLASK_APP=event_provider FLASK_ENV=development python -m event_provider
 
 run-prod: venv
-	. .venv/bin/activate; FLASK_APP=event_provider FLASK_ENV=production python -m flask run
+	. .venv/bin/activate; FLASK_APP=event_provider FLASK_ENV=production python -m event_provider
 
 wsgi: venv
 	# Test if the wsgi file starts an app. The app.run should not be called.
