@@ -2,29 +2,55 @@ from itertools import permutations
 import pytest
 import psycopg2
 
+from nacl.exceptions import CryptoError
+from cryptography.exceptions import UnsupportedAlgorithm, AlreadyFinalized
+
 def test_no_body(client):
     response = client.post('/v1/check-bsn')
     assert response.status_code == 400
     response = client.post('/v1/vaccinaties')
     assert response.status_code == 400
 
-def test_lacking_body(client):
+@pytest.mark.filterwarnings("ignore::pytest.PytestDeprecationWarning::")
+def test_lacking_body(client, subtests):
     response = client.post('/v1/check-bsn', json={'test':'test'})
     assert response.status_code == 400
     required = ["encryptedBsn", "nonce", "hashedBsn"]
     for perm in list(permutations(required)):
-        if len(perm) == len(required):
-            continue
-        data = {}
-        for key in perm:
-            data[key] = "test"
-        response = client.post('/v1/vaccinaties', json=data)
-        assert response.status_code == 400
+        with subtests.test(perm=perm):
+            if len(perm) == len(required):
+                continue
+            data = {}
+            for key in perm:
+                data[key] = "test"
+            response = client.post('/v1/vaccinaties', json=data)
+            assert response.status_code == 400
 
-def test_db_error(client, mocker):
-    def raise_error():
-        raise psycopg2.Error()
+def raise_error(err):
+    raise err
+
+@pytest.fixture
+def test_data():
+    return {
+        'encryptedBsn': 'test',
+        'nonce': 'test',
+        'hashedBsn': 'test'
+    }
+
+def test_db_error(client, mocker, test_data):
     # Weird mock because mocking api confuses Flask
-    mocker.patch('event_provider.interface.check_info_db', raise_error)
-    response = client.post('/v1/check-bsn', json={'hashedBsn': 'test'})
+    mocker.patch('event_provider.api_router.check_information', lambda: raise_error(psycopg2.Error()))
+    response = client.post('/v1/check-bsn', json=test_data)
     assert response.status_code == 500
+    mocker.patch('event_provider.api_router.get_events', lambda: raise_error(psycopg2.Error()))
+    response = client.post('/v1/vaccinaties', json=test_data)
+    assert response.status_code == 500
+
+@pytest.mark.filterwarnings("ignore::pytest.PytestDeprecationWarning::")
+def test_decrypt_error(client, mocker, subtests, test_data):
+    exceptions = [CryptoError(), UnsupportedAlgorithm("test"), AlreadyFinalized()]
+    for err in exceptions:
+        with subtests.test(err=err):
+            mocker.patch('event_provider.api_router.get_events', lambda: raise_error(err))
+            response = client.post('/v1/vaccinaties', json=test_data)
+            assert response.status_code == 500
