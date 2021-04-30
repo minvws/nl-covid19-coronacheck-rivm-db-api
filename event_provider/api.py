@@ -20,7 +20,7 @@ def post_information():
         check_data(data, required)
     except MissingDataException as err:
         return return_error(str(err), 400)
-    id_hash = data["identity_hash"]
+    id_hash = data["hashedBsn"]
     try:
         check = check_information(id_hash)
     except psycopg2.Error as err:
