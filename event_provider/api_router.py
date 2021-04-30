@@ -13,8 +13,6 @@ api = Blueprint("api", __name__)
 def post_information():
     """POST endpoint to check if information is available for a specific identity hash"""
     data = request.get_json()
-    if not data:
-        return return_error("Missing request body", 400)
     required = ["hashedBsn"]
     try:
         check_data(data, required)
@@ -34,8 +32,6 @@ def post_information():
 def post_events():
     """POST endpoint to get available events belonging to a specific identity hash"""
     data = request.get_json()
-    if not data:
-        return return_error("Missing request body", 400)
     required = ["encryptedBsn", "nonce", "hashedBsn"]
     try:
         check_data(data, required)
@@ -63,19 +59,26 @@ class MissingDataException(Exception):
         self.errors = errors
 
     def __str__(self):
-        res = "The following fields are missing from the request body: "
-        for err in self.errors:
-            res += "'" + err + "',"
-        return res[:-1]
+        if self.errors:
+            res = "The following fields are missing from the request body: "
+            for err in self.errors:
+                res += "'" + err + "',"
+            res = res[:-1]
+        else:
+            res = "Missing request body"
+        return res
 
 
 def check_data(data, required):
     """Check if a list of keys are in a given dict"""
     errors = []
-    for key in required:
-        if key not in data:
-            errors.append(key)
-    if errors:
+    if data:
+        for key in required:
+            if key not in data:
+                errors.append(key)
+        if errors:
+            raise MissingDataException(errors)
+    else:
         raise MissingDataException(errors)
 
 
