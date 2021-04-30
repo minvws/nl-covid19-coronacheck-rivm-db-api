@@ -68,32 +68,38 @@ def create_app():
 def check_config():
     """Check if the config was setup properly"""
     errors = []
+    nowrite = False
+    noread = False
     if "database_write" not in config:
         errors.append("database_write section is missing from config file")
+        nowrite = True
     if "database_read" not in config:
         errors.append("database_read section is missing from config file")
+        noread = True
+    if "DEFAULT" not in config:
+        errors.append("DEFAULT section is missing from config file")
+    else:
+        keyfiles = [
+            "decrypt_bsn_key_vws_pub",
+            "decrypt_bsn_key_our_priv",
+            "decrypt_payload_key",
+            "hash_bsn_key",
+        ]
+        for file in keyfiles:
+            if file not in config["DEFAULT"]:
+                errors.append(file + " field is missing from config file")
+            else:
+                enc_file = config["DEFAULT"][file]
+                if not isfile(enc_file):
+                    errors.append(file + " file: '" + enc_file + "' does not exist")
 
     db_keys = ["host", "port", "user", "password", "database"]
 
     for key in db_keys:
-        if not key in config["database_write"]:
+        if not nowrite and not key in config["database_write"]:
             errors.append("Missing field '" + key + "' in database_write section")
-        if not key in config["database_read"]:
+        if not noread and not key in config["database_read"]:
             errors.append("Missing field '" + key + "' in database_read section")
-
-    keyfiles = [
-        "decrypt_bsn_key_vws_pub",
-        "decrypt_bsn_key_our_priv",
-        "decrypt_payload_key",
-        "hash_bsn_key",
-    ]
-    for file in keyfiles:
-        if file not in config["DEFAULT"]:
-            errors.append(file + " field is missing from config file")
-        else:
-            enc_file = config["DEFAULT"][file]
-            if not isfile(enc_file):
-                errors.append(file + " file: '" + enc_file + "' does not exist")
 
     if errors:
         raise ConfigurationException(errors)
