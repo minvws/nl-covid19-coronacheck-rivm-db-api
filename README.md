@@ -8,12 +8,12 @@ Contacts a database to support the endpoints as described in https://github.com/
 This service provides 2 endpoints: `/information` and `/events`. The `/information` endpoint checks if data is available in the database
 while the `/events` endpoint gets data from the database, decrypts it, and returns it. Any request to the database will be logged to the database.
 
-### Sending requests to `/information`
-`/information` expects a POST request with the following body:
+### Sending requests to `/v1/check-bsn`
+`/v1/check-bsn` expects a POST request with the following body:
 
 ```
 {
-	'id_hash': {ID_HASH}
+	'hashedBsn': {ID_HASH}
 }
 ```
 where `ID_HASH` follows the format as described in the minvws document.
@@ -22,19 +22,17 @@ It then returns the following data:
 
 ```
 {
-	'providerIdentifier': 'BGP',
-	'informationAvailable': true|false
+	'exists': true|false
 }
 ```
 
-### Sending requests to `/events`
-`/events` expects a POST request with the following body:
+### Sending requests to `/v1/vaccinaties`
+`/v1/vaccinaties` expects a POST request with the following body:
 ```
 {
-	'bsn': {ENCRYPTED_BSN},
-	'nonce': {NONCE},
-	'keyid': {KEYID},
-	'id_hash': {ID_HASH}
+	"hashedBsn": "string",
+	"encryptedBsn": "string",
+	"nonce": "string"
 }
 ```
 Where `ENCRYPTED_BSN` is the bsn encrypted with libsodium, `NONCE` is the encryption nonce, `KEYID` is the keyid of the cert, and `ID_HASH` follows the format as above. `ID_HASH` is only used for logging purposes.
@@ -42,10 +40,21 @@ Where `ENCRYPTED_BSN` is the bsn encrypted with libsodium, `NONCE` is the encryp
 It then returns the following data:
 
 ```
-{
-	'providerIdentifier': 'BGP'.
-	'events': [a list, of, event payloads]
-}
+	[
+	  {
+	    "vaccinsoort": "string",
+	    "vaccinmerknaam": "string",
+	    "productnaam": "string",
+	    "leverancier": "string",
+	    "batchnummer": "string",
+	    "vaccinatiedatum": "31-12-2020",
+	    "uitvoerende": "string",
+	    "vaccinatieland": "string",
+	    "vaccinatiestatus": "string",
+	    "ouderDan16": true,
+	    "hpkCode": "string"
+	  }, ...
+	]
 ```
 
 ## Setup
