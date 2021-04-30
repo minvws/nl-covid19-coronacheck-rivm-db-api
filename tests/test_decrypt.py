@@ -1,13 +1,18 @@
 import json
-import nacl.secret
+import os
+import random
+import string
+import subprocess
+import re
 import nacl.utils
 import nacl.hash
-from nacl.encoding import Base64Encoder
+from nacl.encoding import HexEncoder
+from nacl.public import PrivateKey, Box
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-from event_provider.decrypt import rawkey_from_file, decrypt, decrypt_bsn, decrypt_payload, get_decryptor, Decryptor
-from event_provider.config import config
+from event_provider.decrypt import decrypt_libsodium, get_decryptor, Decryptor, decrypt_aes, hash_bsn
 
-from flask import g
+from flask import current_app
 import pytest
 
 @pytest.fixture
@@ -16,17 +21,39 @@ def rnonce():
     return nonce
 
 @pytest.fixture
-def bsn_key():
-    return config['DEFAULT']['decrypt_bsn_key']
+def riv():
+    return os.urandom(16)
+
+def rstring():
+    key = ''.join(random.choice(string.ascii_letters) for x in range(32))
+    return key
 
 @pytest.fixture
-def payload_key():
-    return config['DEFAULT']['decrypt_payload_key']
+def bob_keys():
+    privkey = PrivateKey.generate()
+    return {
+        'privkey': privkey,
+        'pubkey': privkey.public_key
+    }
 
-def encrypt_payload(data, nonce, keyfile):
-    key = rawkey_from_file(keyfile)
-    box = nacl.secret.SecretBox(key.encode(), encoder=Base64Encoder)
-    enc_data = box.encrypt(data.encode(), nonce, encoder=Base64Encoder)
+@pytest.fixture
+def alice_keys():
+    privkey = PrivateKey.generate()
+    return {
+        'privkey': privkey,
+        'pubkey': privkey.public_key
+    }
+
+def test_get_decryptor(context):
+    with context:
+        decryptor = get_decryptor()
+        assert 'decryptor' in current_app.config
+        assert isinstance(decryptor, Decryptor)
+        assert decryptor == current_app.config['decryptor']
+
+def encrypt_libsodium(data, nonce, privkey, pubkey):
+    box = Box(privkey, pubkey)
+    enc_data = box.encrypt(data.encode(), nonce, encoder=HexEncoder)
     nonce = enc_data.nonce.decode()
     ctext = enc_data.ciphertext.decode()
     payload = {
@@ -35,35 +62,49 @@ def encrypt_payload(data, nonce, keyfile):
     }
     return payload
 
-def test_decryption(rnonce, bsn_key):
+def test_decrypt_libsodium(rnonce, bob_keys, alice_keys):
+    bprivkey = bob_keys['privkey']
+    bpubkey = bob_keys['pubkey']
+    aprivkey = alice_keys['privkey']
+    apubkey = alice_keys['pubkey']
     data = {
         'test': 'test'
     }
-    encrypted = encrypt_payload(json.dumps(data), rnonce, bsn_key)
-    key = rawkey_from_file(bsn_key)
-    decrypted = decrypt(encrypted['ctext'], encrypted['nonce'], key)
+    encrypted = encrypt_libsodium(json.dumps(data), rnonce, bprivkey, apubkey)
+    decrypted = decrypt_libsodium(encrypted['ctext'], encrypted['nonce'], aprivkey, bpubkey)
     assert json.loads(decrypted) == data
 
-def test_get_decryptor(context):
-    with context:
-        assert not hasattr(g, 'decryptor')
-        decryptor = get_decryptor()
-        assert hasattr(g, 'decryptor')
-        assert isinstance(decryptor, Decryptor)
-        assert decryptor == g.decryptor
+def encrypt_aes(data, key, iv):
+    cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+    encryptor = cipher.encryptor()
+    ct = encryptor.update(data) + encryptor.finalize()
+    return ct
 
-def test_decrypt_bsn(context, bsn_key, rnonce):
-    bsn = "000000012"
-    encrypted = encrypt_payload(bsn, rnonce, bsn_key)
-    with context:
-        decrypted = decrypt_bsn(encrypted['ctext'], encrypted['nonce'])
-    assert decrypted == bsn
-
-def test_decrypt_payload(context, payload_key, rnonce):
-    payload = {
+def test_decrypt_aes(riv):
+    key = rstring() 
+    data = {
         "test": "test"
     }
-    encrypted = encrypt_payload(json.dumps(payload), rnonce, payload_key)
-    with context:
-        decrypted = decrypt_payload(encrypted['ctext'], encrypted['nonce'])
-    assert json.loads(decrypted) == payload
+    encrypted = encrypt_aes(bytes(json.dumps(data), "utf-8"), bytes(key, 'utf-8'), riv)
+    iv = HexEncoder.encode(riv)
+    decrypted = json.loads(decrypt_aes(encrypted, key, iv))
+    assert decrypted == data
+
+def test_hash_bsn(mocker):
+    class MockDecryptor(Decryptor):
+
+        def __init__(self, key):
+            self.bsn_keydata = {
+                'hashkey': key
+            }
+    key = rstring()
+    data = rstring()
+    print(key)
+    print(data)
+    ps = subprocess.Popen(['echo', '-n', data], stdout=subprocess.PIPE)
+    subproc = subprocess.check_output(['openssl', 'dgst', '-sha256', '-hmac', key], stdin=ps.stdout)
+    ps.wait()
+    mocker.patch('event_provider.decrypt.get_decryptor', return_value=MockDecryptor(key))
+    hashed = hash_bsn(data)
+    cap = re.match(r"\(stdin\)=[\s]*([^\s]*)", subproc.decode("utf-8"))
+    assert hashed == cap.group(1)
