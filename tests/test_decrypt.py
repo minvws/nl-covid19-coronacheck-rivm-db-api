@@ -68,24 +68,28 @@ def test_decrypt_libsodium(rnonce, bob_keys, alice_keys):
     aprivkey = alice_keys['privkey']
     apubkey = alice_keys['pubkey']
     data = {
-        'test': 'test'
+        'test': rstring()
     }
     encrypted = encrypt_libsodium(json.dumps(data), rnonce, bprivkey, apubkey)
     decrypted = decrypt_libsodium(encrypted['ctext'], encrypted['nonce'], aprivkey, bpubkey)
     assert json.loads(decrypted) == data
 
+def pad(m):
+    return m+chr(16-len(m)%16)*(16-len(m)%16)
+
 def encrypt_aes(data, key, iv):
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
     encryptor = cipher.encryptor()
+    data
     ct = encryptor.update(data) + encryptor.finalize()
     return ct
 
 def test_decrypt_aes(riv):
     key = rstring() 
     data = {
-        "test": "test"
+        "test": rstring()
     }
-    encrypted = encrypt_aes(bytes(json.dumps(data), "utf-8"), bytes(key, 'utf-8'), riv)
+    encrypted = encrypt_aes(bytes(pad(json.dumps(data)), "utf-8"), bytes(key, 'utf-8'), riv)
     iv = HexEncoder.encode(riv)
     decrypted = json.loads(decrypt_aes(encrypted, key, iv))
     assert decrypted == data
