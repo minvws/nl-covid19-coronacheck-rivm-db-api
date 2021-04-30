@@ -4,6 +4,7 @@ from os.path import isfile
 from flask import Flask, g
 from .api import api
 from .config import config
+from .decrypt import Decryptor
 
 
 class ConfigurationException(Exception):
@@ -21,11 +22,16 @@ def create_app():
     # except:
     #     app.logger.error('Could not add Sysloghandler.')
 
-    check_config()
-
     app.config["DEFAULT"] = config["DEFAULT"]
     app.config["database_write"] = config["database_write"]
     app.config["database_read"] = config["database_read"]
+    """
+    This is pretty ugly, but it's the only way to "keep state"
+    so to speak. Done this way so we don't have to read the keyfiles
+    from disk for every request
+    """
+    with app.app_context():
+        app.config["decryptor"] = Decryptor()
 
     @app.teardown_appcontext
     def close_db(_): # pylint: disable=unused-variable
@@ -56,30 +62,26 @@ def check_config():
     for key in db_keys:
         if not key in config["database_write"]:
             raise ConfigurationException(
-                "Missing key '" + key + "' in database_write section"
+                "Missing field '" + key + "' in database_write section"
             )
-
-    for key in db_keys:
         if not key in config["database_read"]:
             raise ConfigurationException(
-                "Missing key '" + key + "' in database_read section"
+                "Missing field '" + key + "' in database_read section"
             )
 
-    if "decrypt_bsn_key" not in config["DEFAULT"]:
-        raise ConfigurationException(
-            "decrypt_bsn_key field is missing from config file"
-        )
-    enc_file = config["DEFAULT"]["decrypt_bsn_key"]
-    if not isfile(enc_file):
-        raise ConfigurationException(
-            "decrypt_bsn_key '" + enc_file + "' does not exist"
-        )
-    if "decrypt_payload_key" not in config["DEFAULT"]:
-        raise ConfigurationException(
-            "decrypt_payload_key field is missing from config file"
-        )
-    enc_file = config["DEFAULT"]["decrypt_payload_key"]
-    if not isfile(enc_file):
-        raise ConfigurationException(
-            "decrypt_payload_key '" + enc_file + "' does not exist"
-        )
+    keyfiles = ["decrypt_bsn_key_vws_pub", "decrypt_bsn_key_our_priv", "decrypt_payload_key", "hash_bsn_key"]
+    for file in keyfiles:
+        if file not in config["DEFAULT"]:
+            raise ConfigurationException(
+                file + " field is missing from config file"
+            )
+        enc_file = config["DEFAULT"][file]
+        if not isfile(enc_file):
+            raise ConfigurationException(
+                file + " file: '" + enc_file + "' does not exist"
+            )
+
+if __name__ == '__main__':
+    check_config()
+    app = create_app()
+    app.run()
