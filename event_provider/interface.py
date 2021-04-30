@@ -36,12 +36,10 @@ def convert_payloads(data):
         "hpkCode": "HPK-code",
     }
     for payload in data:
-        decrypted = decrypt_payload(payload['payload'], payload['iv'])
+        decrypted = decrypt_payload(payload["payload"], payload["iv"])
         dic = json.loads(decrypted)
         data = {}
         for key, mapped_key in mapper.items():
             data[key] = dic[mapped_key]
-        payloads.append(
-            data
-        )
+        payloads.append(data)
     return payloads

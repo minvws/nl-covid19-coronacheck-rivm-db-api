@@ -2,7 +2,7 @@
 from os.path import isfile
 
 from flask import Flask, g
-from .api import api, return_error
+from .api import api
 from .config import config
 from .decrypt import Decryptor
 
@@ -26,6 +26,7 @@ class ConfigurationException(Exception):
             res += "]"
         res += " Please fix the Configuration file"
         return res
+
 
 def create_app():
     """create and configure the app"""
@@ -52,7 +53,7 @@ def create_app():
         app.config["decryptor"] = Decryptor()
 
     @app.teardown_appcontext
-    def close_db(_): # pylint: disable=unused-variable
+    def close_db(_):  # pylint: disable=unused-variable
         """Closes the database again at the end of the request."""
         if hasattr(g, "read_db"):
             g.read_db.close()
@@ -80,7 +81,12 @@ def check_config():
         if not key in config["database_read"]:
             errors.append("Missing field '" + key + "' in database_read section")
 
-    keyfiles = ["decrypt_bsn_key_vws_pub", "decrypt_bsn_key_our_priv", "decrypt_payload_key", "hash_bsn_key"]
+    keyfiles = [
+        "decrypt_bsn_key_vws_pub",
+        "decrypt_bsn_key_our_priv",
+        "decrypt_payload_key",
+        "hash_bsn_key",
+    ]
     for file in keyfiles:
         if file not in config["DEFAULT"]:
             errors.append(file + " field is missing from config file")

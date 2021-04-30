@@ -1,6 +1,6 @@
 """Router that serves the endpoints"""
 
-from flask import Blueprint, jsonify, request, make_response
+from flask import Blueprint, jsonify, request
 from event_provider.interface import check_information, get_events
 from nacl.exceptions import CryptoError
 from cryptography.exceptions import UnsupportedAlgorithm, AlreadyFinalized
@@ -54,8 +54,10 @@ def post_events():
         return return_error(res, 500)
     return jsonify(events)
 
+
 class MissingDataException(Exception):
     """Generic Exception for Missing Data"""
+
     def __init__(self, errors):
         super().__init__()
         self.errors = errors
@@ -66,6 +68,7 @@ class MissingDataException(Exception):
             res += "'" + err + "',"
         return res[:-1]
 
+
 def check_data(data, required):
     """Check if a list of keys are in a given dict"""
     errors = []
@@ -75,10 +78,8 @@ def check_data(data, required):
     if errors:
         raise MissingDataException(errors)
 
+
 def return_error(msg, code):
     """Helper function to create error object"""
-    data = {
-        'code': code,
-        'melding': msg
-    }
+    data = {"code": code, "melding": msg}
     return jsonify(data), code
