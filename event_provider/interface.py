@@ -22,8 +22,26 @@ def get_events(enc_bsn, nonce, id_hash):
 def convert_payloads(data):
     """Converts payloads in the DB to how it should be represented in the front"""
     payloads = []
+    mapper = {
+        "vaccinsoort": "Vaccinsoort",
+        "vaccinmerknaam": "Vaccinmerknaam",
+        "productnaam": "Productnaam",
+        "leverancier": "Leverancier",
+        "batchnummer": "Batchnummer",
+        "vaccinatiedatum": "Vaccinatiedatum",
+        "uitvoerende": "Uitvoerende",
+        "vaccinatieland": "Vaccinatieland",
+        "vaccinatiestatus": "Vaccinatiestatus",
+        "ouderDan16": "Ouderdan16",
+        "hpkCode": "HPK-code",
+    }
     for payload in data:
+        decrypted = decrypt_payload(payload['payload'], payload['iv'])
+        dic = json.loads(decrypted)
+        data = {}
+        for key, mapped_key in mapper.items():
+            data[key] = dic[mapped_key]
         payloads.append(
-            json.loads(decrypt_payload(payload['payload'], payload['iv']))
+            data
         )
     return payloads

@@ -9,10 +9,6 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 from flask import current_app
 
-
-class MismatchKeyIdError(Exception):
-    """Generic exception for mismatching keyid"""
-
 class Decryptor: #pylint: disable=too-few-public-methods
     """Decryptor class which simply holds data written from disk"""
     def __init__(self):
