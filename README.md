@@ -16,7 +16,7 @@ while the `/events` endpoint gets data from the database, decrypts it, and retur
 	'hashedBsn': {ID_HASH}
 }
 ```
-where `ID_HASH` follows the format as described in the minvws document.
+where `hashedBsn` follows the format as described in the minvws document.
 
 It then returns the following data:
 
@@ -35,7 +35,7 @@ It then returns the following data:
 	"nonce": "string"
 }
 ```
-Where `ENCRYPTED_BSN` is the bsn encrypted with libsodium, `NONCE` is the encryption nonce, `KEYID` is the keyid of the cert, and `ID_HASH` follows the format as above. `ID_HASH` is only used for logging purposes.
+Where `encryptedBsn` is the bsn encrypted with libsodium, `nonce` is the encryption nonce, and `hashedBsn` follows the format as above. `hashedBsn` is only used for logging purposes.
 
 It then returns the following data:
 
