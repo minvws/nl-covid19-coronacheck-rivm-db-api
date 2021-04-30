@@ -2,6 +2,7 @@ from itertools import permutations
 import pytest
 import psycopg2
 
+from event_provider.interface import PayloadConversionException
 from nacl.exceptions import CryptoError
 from cryptography.exceptions import UnsupportedAlgorithm, AlreadyFinalized
 
@@ -54,3 +55,8 @@ def test_decrypt_error(client, mocker, subtests, test_data):
             mocker.patch('event_provider.api_router.get_events', lambda: raise_error(err))
             response = client.post('/v1/vaccinaties', json=test_data)
             assert response.status_code == 500
+
+def test_conversion_error(client, mocker, test_data):
+    mocker.patch('event_provider.api_router.get_events', lambda: raise_error(PayloadConversionException()))
+    response = client.post('/v1/vaccinaties', json=test_data)
+    assert response.status_code == 500

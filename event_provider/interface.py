@@ -3,6 +3,18 @@ import json
 from event_provider.database import check_info_db, get_events_db
 from event_provider.decrypt import decrypt_bsn, decrypt_payload, hash_bsn
 
+class PayloadConversionException(Exception):
+
+    def __init__(self, errors):
+        self.errors = errors
+        super().__init__()
+
+    def __str__(self):
+        res = "Failed to convert the following keys in the payload: "
+        for err in self.errors:
+            res += err + ", "
+        res = res[:-2]
+        return res
 
 def check_information(id_hash):
     """Convert the db response into whatever is needed in the front"""
@@ -39,7 +51,13 @@ def convert_payloads(data):
         decrypted = decrypt_payload(payload["payload"], payload["iv"])
         dic = json.loads(decrypted)
         data = {}
+        errors = []
         for key, mapped_key in mapper.items():
+            if mapped_key not in dic:
+                errors.append(mapped_key)
+                continue
             data[key] = dic[mapped_key]
+        if errors:
+            raise PayloadConversionException(errors)
         payloads.append(data)
     return payloads

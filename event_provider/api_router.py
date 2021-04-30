@@ -1,7 +1,7 @@
 """Router that serves the endpoints"""
 
 from flask import Blueprint, jsonify, request
-from event_provider.interface import check_information, get_events
+from event_provider.interface import check_information, get_events, PayloadConversionException
 from nacl.exceptions import CryptoError
 from cryptography.exceptions import UnsupportedAlgorithm, AlreadyFinalized
 import psycopg2
@@ -48,6 +48,8 @@ def post_events():
     except (CryptoError, UnsupportedAlgorithm, AlreadyFinalized) as err:
         res = "An error occured while decrypting: " + str(err)
         return return_error(res, 500)
+    except PayloadConversionException as err:
+        return return_error(str(err), 500)
     return jsonify(events)
 
 
@@ -62,8 +64,8 @@ class MissingDataException(Exception):
         if self.errors:
             res = "The following fields are missing from the request body: "
             for err in self.errors:
-                res += "'" + err + "',"
-            res = res[:-1]
+                res += "'" + err + "', "
+            res = res[:-2]
         else:
             res = "Missing request body"
         return res
