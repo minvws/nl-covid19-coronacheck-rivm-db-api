@@ -61,11 +61,32 @@ cp inge5.conf.dist inge5.conf
 
 And modify the config file as needed.
 
+### Explanation of the config file
+
+#### Default
+General, default config values
+
+* `decrypt_bsn_key_our_priv` - The location of the local private key, combines with the public key from VWS to decrypt the BSN.
+* `decrypt_bsn_key_vws_pub` - The location of the public key from vws, combines with our local private key to decrypt the BSN,
+* `decrypt_payload_key` - The location of the aes256 key used to decrypt the database payload data.
+* `hash_bsn_key` - The location of the hmac hmac256 key used to hash the database `bsn_internal` data. 
+* `host` - The address to run on (OPTIONAL, defaults to localhost)
+* `port` - The port to listen on (OPTIONAL, defaults to 5000)
+
+#### Database
+There are two database sections in the config: `database_read` for the read connection and `database_write` for the write connection. Both have the same fields
+
+* `host` - The address of the database host
+* `port` - The port the database is listening on
+* `user` - The user for this connection
+* `password` - The password for the database user
+* `database` - The name of the database to connect to
+
 ## Running
 
 inge-5 is a basic Flask project with the name of `event_provider`. To start it, simply run the following command:
 
-`make run`
+`make run` or `make run-prod`
 
 It runs on `http://localhost:5000/` by default.
 
