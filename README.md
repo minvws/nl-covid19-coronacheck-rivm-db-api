@@ -99,3 +99,13 @@ inge-5 is a basic Flask project with the name of `event_provider`. To start it, 
 
 It runs on `http://localhost:5000/` by default.
 
+## Tests
+
+There are a few small tests in this repo. To run them, first install the `requirements-dev`:
+
+```
+source .venv/bin/activate
+pip install -r requirements-dev.txt
+```
+
+and then run `make test`
