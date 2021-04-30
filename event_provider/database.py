@@ -1,6 +1,7 @@
 """Functions to interface with the DB"""
 import datetime
 import psycopg2
+import psycopg2.extras
 from flask import current_app, g
 
 
@@ -30,15 +31,15 @@ def write_connection():
     return g.write_db
 
 
-def log_request(id_hash):
+def log_request(id_hash, count):
     """Log the request to the db"""
-    sql = """INSERT INTO vaccinatie_event_logging (created_date, bsn_external, channel, created_at)
-                VALUES (%s,%s,%s,CURRENT_TIMESTAMP);"""
+    sql = """INSERT INTO vaccinatie_event_logging (created_date, bsn_external, channel, created_at, events)
+                VALUES (%s,%s,%s,CURRENT_TIMESTAMP,%s);"""
     conn = write_connection()
     curr_date, _ = datetime.datetime.now().isoformat().split("T")
     with conn.cursor() as cur:
         cur.execute(
-            sql, [curr_date, id_hash, current_app.config.get("identfier", "BGP")]
+            sql, [curr_date, id_hash, current_app.config.get("identfier", "BGP"), count]
         )
     conn.commit()
 
@@ -47,23 +48,23 @@ def check_info_db(id_hash):
     """Query the DB if a given id_hash has info"""
     sql = "SELECT id FROM vaccinatie_event WHERE bsn_external = %s LIMIT 1;"
     conn = read_connection()
-    res = None
+    res = []
     with conn.cursor() as cur:
         cur.execute(sql, [id_hash])
-        res = cur.fetchone()
+        res = cur.fetchall()
     conn.commit()
-    log_request(id_hash)
+    log_request(id_hash, len(res))
     return res
 
 
-def get_events_db(bsn, id_hash):
+def get_events_db(hashed_bsn, id_hash):
     """Get all the payloads in the DB belonging to a certain id_hash"""
-    sql = "SELECT payload FROM vaccinatie_event WHERE bsn_internal = %s;"
+    sql = "SELECT payload, iv FROM vaccinatie_event WHERE bsn_internal = %s;"
     conn = read_connection()
     res = []
-    with conn.cursor() as cur:
-        cur.execute(sql, [bsn])
+    with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute(sql, [hashed_bsn])
         res = cur.fetchall()
     conn.commit()
-    log_request(id_hash)
+    log_request(id_hash, len(res))
     return res
