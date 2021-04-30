@@ -1,17 +1,19 @@
 [DEFAULT]
-decrypt_bsn_key = secrets/bsn.key
+decrypt_bsn_key_our_priv = secrets/bsn.key
+decrypt_bsn_key_vws_pub = secrets/bsn_pub.key
 decrypt_payload_key = secrets/db.key
+hash_bsn_key = secrets/bsn_hash.key
 
 [database_read]
 host = localhost
-port = 5433
+port = 5432
 user = reader
 password = reader
 database = vcbe_db
 
 [database_write]
 host = localhost
-port = 5433
+port = 5432
 user = writer
 password = writer
 database = vcbe_db
