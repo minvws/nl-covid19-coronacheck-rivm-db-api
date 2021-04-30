@@ -2,7 +2,7 @@
 from os.path import isfile
 
 from flask import Flask, g
-from .api import api
+from .api_router import api
 from .config import config
 from .decrypt import Decryptor
 
