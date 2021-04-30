@@ -38,12 +38,12 @@ def decrypt_bsn(bsn, nonce):
     decryptor = get_decryptor()
     privkey = decryptor.bsn_keydata['privkey']
     pubkey = decryptor.bsn_keydata['pubkey']
+    privkey = nacl.public.PrivateKey(privkey, Base64Encoder)
+    pubkey = nacl.public.PublicKey(pubkey, Base64Encoder)
     return decrypt_libsodium(bsn, nonce, privkey, pubkey)
 
 def decrypt_libsodium(data, nonce, privkey, pubkey):
-    """Generic decrypt function"""
-    privkey = nacl.public.PrivateKey(privkey, Base64Encoder)
-    pubkey = nacl.public.PublicKey(pubkey, Base64Encoder)
+    """Generic libsodium decrypt function"""
     box = nacl.public.Box(privkey, pubkey)
     nonce = HexEncoder.decode(nonce)
     decrypted = box.decrypt(data, nonce, encoder=HexEncoder).decode()
