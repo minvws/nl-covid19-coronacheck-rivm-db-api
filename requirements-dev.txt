@@ -1,6 +1,7 @@
 pytest
 pytest-cov
 pytest-mock
+pytest-subtests
 black
 bandit
 autoflake
