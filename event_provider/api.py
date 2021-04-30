@@ -2,6 +2,9 @@
 
 from flask import Blueprint, jsonify, request, make_response
 from event_provider.interface import check_information, get_events
+from nacl.exceptions import CryptoError
+from cryptography.exceptions import UnsupportedAlgorithm, AlreadyFinalized
+import psycopg2
 
 api = Blueprint("api", __name__)
 
@@ -18,8 +21,12 @@ def post_information():
     except MissingDataException as err:
         return return_error(str(err), 400)
     id_hash = data["identity_hash"]
-    check = check_information(id_hash)
-    resp = {"informationAvailable": check}
+    try:
+        check = check_information(id_hash)
+    except psycopg2.Error as err:
+        res = "A database error occured: " + str(err)
+        return return_error(res, 500)
+    resp = {"exists": check}
     return jsonify(resp)
 
 
@@ -37,18 +44,36 @@ def post_events():
     bsn = data["encryptedBsn"]
     nonce = data["nonce"]
     id_hash = data["hashedBsn"]
-    events = get_events(bsn, nonce, id_hash)
-    resp = {"events": events}
-    return jsonify(resp)
+    try:
+        events = get_events(bsn, nonce, id_hash)
+    except psycopg2.Error as err:
+        res = "A database error occured: " + str(err)
+        return return_error(res, 500)
+    except (CryptoError, UnsupportedAlgorithm, AlreadyFinalized) as err:
+        res = "An error occured while decrypting: " + str(err)
+        return return_error(res, 500)
+    return jsonify(events)
 
 class MissingDataException(Exception):
     """Generic Exception for Missing Data"""
+    def __init__(self, errors):
+        super().__init__()
+        self.errors = errors
+
+    def __str__(self):
+        res = "The following fields are missing from the request body: "
+        for err in self.errors:
+            res += "'" + err + "',"
+        return res[:-1]
 
 def check_data(data, required):
     """Check if a list of keys are in a given dict"""
+    errors = []
     for key in required:
         if key not in data:
-            raise MissingDataException("Missing '" + str(key) + "' field in request body")
+            errors.append(key)
+    if errors:
+        raise MissingDataException(errors)
 
 def return_error(msg, code):
     """Helper function to create error object"""
