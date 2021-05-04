@@ -42,7 +42,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: grant database permissions
-        run: PGPASSWORD=writer psql -U writer -d writer -h 127.0.0.1 -p 5432 <<< "CREATE ROLE reader; ALTER ROLE reader WITH PASSWORD 'reader'; ALTER ROLE reader WITH LOGIN;"
+        run: PGPASSWORD=writer psql -U writer -d vcbe_db -h 127.0.0.1 -p 5432 <<< "CREATE ROLE reader; ALTER ROLE reader WITH PASSWORD 'reader'; ALTER ROLE reader WITH LOGIN;"
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
