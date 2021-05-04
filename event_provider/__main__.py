@@ -1,3 +1,4 @@
+"""Main file to handle Flask start"""
 from event_provider import check_config, create_app
 
 if __name__ == "__main__":

@@ -1,14 +1,14 @@
 """Router that serves the endpoints"""
 
+from nacl.exceptions import CryptoError
+from cryptography.exceptions import UnsupportedAlgorithm, AlreadyFinalized
 from flask import Blueprint, jsonify, request
+import psycopg2
 from event_provider.interface import (
     check_information,
     get_events,
     PayloadConversionException,
 )
-from nacl.exceptions import CryptoError
-from cryptography.exceptions import UnsupportedAlgorithm, AlreadyFinalized
-import psycopg2
 
 api = Blueprint("api", __name__)
 
