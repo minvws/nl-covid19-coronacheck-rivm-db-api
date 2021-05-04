@@ -16,12 +16,6 @@ jobs:
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - uses: actions/checkout@v1
 
-      - name: debug
-        run: echo $HOME $PWD
-
-      - name: debug2
-        run: ls -laR /home/runner/work
-
       - name: prep
         run: sudo mkdir -p /usr/local/inge5/current/
       - name: prep chown
