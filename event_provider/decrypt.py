@@ -55,7 +55,7 @@ def decrypt_libsodium(data, nonce, privkey, pubkey):
     return decrypted
 
 
-def decrypt_payload(payload, iv):
+def decrypt_payload(payload, iv):  # pylint: disable=invalid-name
     """Decrypt Payload data"""
     decryptor = get_decryptor()
     key = decryptor.payload_keydata
@@ -63,19 +63,19 @@ def decrypt_payload(payload, iv):
     return decrypt_aes(enc, key, iv)
 
 
-def unpad(ct):
+def unpad(ct):  # pylint: disable=invalid-name
     """Removes pkcs7 padding"""
     return ct[: -ord(ct[-1])]
 
 
-"""
-Would prefer to not have to use aes
-but Oracle is keeping us hostage in a bad-cryptography situation
-so here we are
-"""
+###
+# Would prefer to not have to use aes
+# but Oracle is keeping us hostage in a bad-cryptography situation
+# so here we are
+###
 
 
-def decrypt_aes(enc, key, iv):
+def decrypt_aes(enc, key, iv):  # pylint: disable=invalid-name
     """Decrypt AES encrypted data"""
     iv = HexEncoder.decode(iv)
     cipher = Cipher(algorithms.AES(bytes(key, "utf-8")), modes.CBC(iv))

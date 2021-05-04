@@ -44,11 +44,13 @@ def create_app():
     app.config["DEFAULT"] = config["DEFAULT"]
     app.config["database_write"] = config["database_write"]
     app.config["database_read"] = config["database_read"]
-    """
-    This is pretty ugly, but it's the only way to "keep state"
-    so to speak. Done this way so we don't have to read the keyfiles
-    from disk for every request
-    """
+
+    ##
+    # This is pretty ugly, but it's the only way to "keep state"
+    # so to speak. Done this way so we don't have to read the keyfiles
+    # from disk for every request
+    ##
+
     with app.app_context():
         app.config["decryptor"] = Decryptor()
 
