@@ -31,10 +31,10 @@ jobs:
         run: cd /usr/local/inge5/current; source .venv/bin/activate; pip install -U pip; pip install -r requirements.txt
 
       - name: Create archive
-        run: cd /usr/local/inge5/current/; tar -czf /home/runner/work/inge5/inge5/inge5_venv_${{ env.RELEASE_VERSION }}.tar.gz .venv
+        run: cd /usr/local/inge5/current/; tar -czf /home/runner/work/inge-5/inge-5/inge-5_venv_${{ env.RELEASE_VERSION }}.tar.gz .venv
 
       - name: Upload venv tar
         uses: actions/upload-artifact@v1
         with:
-          name: inge5_venv_${{ env.RELEASE_VERSION }}
-          path: inge5_venv_${{ env.RELEASE_VERSION }}.tar.gz
+          name: inge-5_venv_${{ env.RELEASE_VERSION }}
+          path: inge-5_venv_${{ env.RELEASE_VERSION }}.tar.gz
