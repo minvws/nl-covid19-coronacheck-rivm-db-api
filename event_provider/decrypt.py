@@ -62,15 +62,19 @@ def decrypt_payload(payload, iv):
     enc = HexEncoder.decode(payload)
     return decrypt_aes(enc, key, iv)
 
+
 def unpad(ct):
-    """ Removes pkcs7 padding"""
-    return ct[:-ord(ct[-1])]
+    """Removes pkcs7 padding"""
+    return ct[: -ord(ct[-1])]
+
 
 """
 Would prefer to not have to use aes
 but Oracle is keeping us hostage in a bad-cryptography situation
 so here we are
 """
+
+
 def decrypt_aes(enc, key, iv):
     """Decrypt AES encrypted data"""
     iv = HexEncoder.decode(iv)

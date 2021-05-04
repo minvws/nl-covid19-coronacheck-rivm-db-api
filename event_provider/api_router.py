@@ -1,7 +1,11 @@
 """Router that serves the endpoints"""
 
 from flask import Blueprint, jsonify, request
-from event_provider.interface import check_information, get_events, PayloadConversionException
+from event_provider.interface import (
+    check_information,
+    get_events,
+    PayloadConversionException,
+)
 from nacl.exceptions import CryptoError
 from cryptography.exceptions import UnsupportedAlgorithm, AlreadyFinalized
 import psycopg2
