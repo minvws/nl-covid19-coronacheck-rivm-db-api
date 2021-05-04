@@ -6,6 +6,7 @@ from event_provider.decrypt import decrypt_bsn, decrypt_payload, hash_bsn
 
 class PayloadConversionException(Exception):
     """Exception for any issues during payload conversion"""
+
     def __init__(self, errors):
         self.errors = errors
         super().__init__()
