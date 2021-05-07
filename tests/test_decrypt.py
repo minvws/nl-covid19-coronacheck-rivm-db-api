@@ -103,8 +103,6 @@ def test_hash_bsn(mocker):
             }
     key = rstring()
     data = rstring()
-    print(key)
-    print(data)
     ps = subprocess.Popen(['echo', '-n', data], stdout=subprocess.PIPE)
     subproc = subprocess.check_output(['openssl', 'dgst', '-sha256', '-hmac', key], stdin=ps.stdout)
     ps.wait()
