@@ -23,7 +23,7 @@ def get_health():
     try:
         check_health()
     except HealthException as ex:
-        melding = repr(ex)
+        melding = str(ex)
         code = ex.code
     return return_error(melding, code)  # Same format can be used for 200 response
 
