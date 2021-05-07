@@ -8,3 +8,5 @@ autoflake
 coverage
 pip-tools
 pylint
+sqlalchemy
+testcontainers
