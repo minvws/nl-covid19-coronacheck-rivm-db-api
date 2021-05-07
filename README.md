@@ -120,11 +120,24 @@ There are two database sections in the config: `database_read` for the read conn
 
 ## Running
 
+inge-5 now has a simple run script. Simply run `./run_inge5.sh` after having setup the venv to start the service
+in production mode.
+
+### Running in dev
+
 inge-5 is a basic Flask project with the name of `event_provider`. To start it, simply run the following command:
 
 `make run` or `make run-prod`
 
-It runs on `http://localhost:5000/` by default.
+It runs on `http://localhost:5000/` by default. `make run-prod` starts up the Flask production server, which is not recommended
+for actual production (see below)
+
+### Running in production
+
+Flask recommends against running it's production server and instead suggests using `uwsgi`. To run `inge-5` with `uwsgi`,
+simply run `uwsgi --ini uwsgi.ini`. This will by default create a unix socket at `./event_provider.sock` and spins up 5 workers.
+
+If you want a different configuration, simply edit `uwsgi.ini`
 
 ## Tests
 
