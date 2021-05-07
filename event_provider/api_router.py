@@ -7,10 +7,25 @@ import psycopg2
 from event_provider.interface import (
     check_information,
     get_events,
+    check_health,
     PayloadConversionException,
+    HealthException,
 )
 
 api = Blueprint("api", __name__)
+
+
+@api.route("/health", methods=["GET"])
+def get_health():
+    """Get endpoint to test the health of the service"""
+    melding = "ok"
+    code = 200
+    try:
+        check_health()
+    except HealthException as ex:
+        melding = repr(ex)
+        code = ex.code
+    return return_error(melding, code)  # Same format can be used for 200 response
 
 
 @api.route("/v1/check-bsn", methods=["POST"])

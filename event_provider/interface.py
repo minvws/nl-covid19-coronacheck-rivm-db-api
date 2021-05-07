@@ -1,6 +1,14 @@
 """Middleware between API and decryptor/DB"""
 import json
-from event_provider.database import check_info_db, get_events_db
+import os
+import psycopg2
+from flask import current_app
+from event_provider.database import (
+    check_info_db,
+    get_events_db,
+    read_connection,
+    write_connection,
+)
 from event_provider.decrypt import decrypt_bsn, decrypt_payload, hash_bsn
 
 
@@ -17,6 +25,18 @@ class PayloadConversionException(Exception):
             res += err + ", "
         res = res[:-2]
         return res
+
+
+class HealthException(Exception):
+    """Exception for the health check"""
+
+    def __init__(self, msg, code=500):
+        self.code = code
+        self.msg = msg
+        super().__init__()
+
+    def __str__(self):
+        return self.msg
 
 
 def check_information(id_hash):
@@ -64,3 +84,35 @@ def convert_payloads(data):
             raise PayloadConversionException(errors)
         payloads.append(data)
     return payloads
+
+
+def check_health():
+    """Check the health of the service"""
+    try:
+        conn = read_connection()
+    except psycopg2.Error as ex:
+        raise HealthException(
+            "Something is wrong with the read connection to the database: " + repr(ex)
+        ) from ex
+    if conn.closed:
+        raise HealthException("The read connection to the database is closed")
+    try:
+        conn = write_connection()
+    except psycopg2.Error as ex:
+        raise HealthException(
+            "Something is wrong with the write connection to the database: " + repr(ex)
+        ) from ex
+    if conn.closed:
+        raise HealthException("The write connection to the database is closed")
+    keyfiles = [
+        "decrypt_bsn_key_vws_pub",
+        "decrypt_bsn_key_our_priv",
+        "decrypt_payload_key",
+        "hash_bsn_key",
+    ]
+    for key in keyfiles:
+        path = current_app.config["DEFAULT"][key]
+        if not os.path.isfile(path):
+            raise HealthException(
+                "The decryption key file for " + key + " is missing from disk"
+            )
