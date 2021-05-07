@@ -5,8 +5,10 @@ Contacts a database to support the endpoints as described in https://github.com/
 
 ## Endpoints
 
-This service provides 2 endpoints: `/information` and `/events`. The `/information` endpoint checks if data is available in the database
-while the `/events` endpoint gets data from the database, decrypts it, and returns it. Any request to the database will be logged to the database.
+This service provides 3 endpoints: `/v1/check-bsn`, `/v1/vaccinaties` and `/health`. The `/v1/check-bsn` endpoint checks if data is available in the database
+while the `/v1/vaccinaties` endpoint gets data from the database, decrypts it, and returns it. The `/health` endpoint simply returns the status of service
+
+Any request to the database will be logged to the database.
 
 ### Sending requests to `/v1/check-bsn`
 `/v1/check-bsn` expects a POST request with the following body:
@@ -56,6 +58,31 @@ It then returns the following data:
 	  }, ...
 	]
 ```
+
+### Sending requests to `/health`
+`/health` expects a simple GET request and returns the following data:
+
+```
+{
+	"melding": "ok"|"ERROR_MSG",
+	"code": int
+}
+```
+
+The response code header is also set to the value of the `code` field.
+
+
+### Getting error responses
+If an error occurs anywhere in the process, the following data is returned:
+
+```
+{
+	"melding": "string",
+	"code": int
+}
+```
+
+Just like with the `/health` endpoint, the response code header is also set
 
 ## Setup
 
