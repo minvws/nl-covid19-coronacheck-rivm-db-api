@@ -65,17 +65,17 @@ def test_health(client, mocker):
     response = client.get('/health')
     assert response.status_code == 200
     assert response.json['code'] == 200
-    mocker.patch('event_provider.api_router.check_health', lambda: raise_error(HealthException(["test"])))
+    mocker.patch('event_provider.api_router.check_health', lambda: raise_error(HealthException("test")))
     response = client.get('/health')
     assert response.status_code == 500
     assert response.json['code'] == 500
 
-def test_check_bsn(client, mocker):
+def test_check_bsn(client, mocker, test_data):
     mocker.patch('event_provider.api_router.check_information', return_value=False)
-    response = client.get('/v1/check-bsn', json=test_data)
+    response = client.post('/v1/check-bsn', json=test_data)
     assert response.status_code == 200
     assert response.json['exists'] is False
     mocker.patch('event_provider.api_router.check_information', return_value=True)
-    response = client.get('/v1/check-bsn', json=test_data)
+    response = client.post('/v1/check-bsn', json=test_data)
     assert response.status_code == 200
     assert response.json['exists'] is True
