@@ -12,8 +12,8 @@ from event_provider.decrypt import decrypt_libsodium, get_decryptor, Decryptor, 
 from flask import current_app
 import pytest
 
-def rstring():
-    key = ''.join(random.choice(string.ascii_letters) for x in range(32))
+def rstring(size=32):
+    key = ''.join(random.choice(string.ascii_letters) for x in range(size))
     return key
 
 def test_get_decryptor(context):
@@ -57,7 +57,7 @@ def encrypt_aes(data, key, iv):
     return ct
 
 def test_decrypt_aes(riv):
-    key = rstring() 
+    key = rstring()
     data = {
         "test": rstring()
     }
