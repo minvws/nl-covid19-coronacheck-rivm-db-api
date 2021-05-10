@@ -2,7 +2,7 @@ from itertools import permutations
 import pytest
 import psycopg2
 
-from event_provider.interface import PayloadConversionException
+from event_provider.interface import PayloadConversionException, HealthException
 from nacl.exceptions import CryptoError
 from cryptography.exceptions import UnsupportedAlgorithm, AlreadyFinalized
 
@@ -39,7 +39,6 @@ def test_data():
     }
 
 def test_db_error(client, mocker, test_data):
-    # Weird mock because mocking api confuses Flask
     mocker.patch('event_provider.api_router.check_information', lambda: raise_error(psycopg2.Error()))
     response = client.post('/v1/check-bsn', json=test_data)
     assert response.status_code == 500
@@ -60,3 +59,13 @@ def test_conversion_error(client, mocker, test_data):
     mocker.patch('event_provider.api_router.get_events', lambda: raise_error(PayloadConversionException()))
     response = client.post('/v1/vaccinaties', json=test_data)
     assert response.status_code == 500
+
+def test_health(client, mocker):
+    mocker.patch('event_provider.api_router.check_health', lambda: True)
+    response = client.get('/health')
+    assert response.status_code == 200
+    assert response.json['code'] == 200
+    mocker.patch('event_provider.api_router.check_health', lambda: raise_error(HealthException()))
+    response = client.get('/health')
+    assert response.status_code == 500
+    assert response.json['code'] == 500
