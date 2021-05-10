@@ -37,7 +37,7 @@ def log_request(id_hash, count):
         (created_date, bsn_external, channel, created_at, events)
                 VALUES (%s,%s,%s,CURRENT_TIMESTAMP,%s);"""
     conn = write_connection()
-    curr_date, _ = datetime.datetime.now().isoformat().split("T")
+    curr_date = datetime.date.today().isoformat()
     with conn.cursor() as cur:
         cur.execute(
             sql, [curr_date, id_hash, current_app.config.get("identfier", "BGP"), count]
