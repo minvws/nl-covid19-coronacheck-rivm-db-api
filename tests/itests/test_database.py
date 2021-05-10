@@ -1,4 +1,5 @@
 import random
+from uuid import uuid4
 
 import pytest
 from event_provider.database import log_request, check_info_db, get_events_db, write_connection, read_connection
@@ -10,7 +11,7 @@ def mock_database(mocker, backend_db):
 
 def create_event(conn, bsn="test"):
     with conn.cursor() as cur:
-        cur.execute("INSERT INTO vaccinatie_event (bsn_external, bsn_internal, payload, iv, version_cims, version_vcbe) VALUES ('{}', '{}', 'test', 'test', 'test', 'test');".format(bsn, bsn))
+        cur.execute("INSERT INTO vaccinatie_event (bsn_external, bsn_internal, payload, iv, version_cims, version_vcbe) VALUES (%s, %s, 'test', 'test', 'test', 'test');", [bsn, bsn])
     conn.commit()
 
 def get_log(conn):
