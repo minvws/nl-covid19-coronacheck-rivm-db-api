@@ -1,13 +1,10 @@
 import json
-import os
 import random
 import string
 import subprocess
 import re
-import nacl.utils
-import nacl.hash
 from nacl.encoding import HexEncoder
-from nacl.public import PrivateKey, Box
+from nacl.public import Box
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 from event_provider.decrypt import decrypt_libsodium, get_decryptor, Decryptor, decrypt_aes, hash_bsn
@@ -15,34 +12,9 @@ from event_provider.decrypt import decrypt_libsodium, get_decryptor, Decryptor, 
 from flask import current_app
 import pytest
 
-@pytest.fixture
-def rnonce():
-    nonce = nacl.utils.random(nacl.secret.SecretBox.NONCE_SIZE)
-    return nonce
-
-@pytest.fixture
-def riv():
-    return os.urandom(16)
-
 def rstring():
     key = ''.join(random.choice(string.ascii_letters) for x in range(32))
     return key
-
-@pytest.fixture
-def bob_keys():
-    privkey = PrivateKey.generate()
-    return {
-        'privkey': privkey,
-        'pubkey': privkey.public_key
-    }
-
-@pytest.fixture
-def alice_keys():
-    privkey = PrivateKey.generate()
-    return {
-        'privkey': privkey,
-        'pubkey': privkey.public_key
-    }
 
 def test_get_decryptor(context):
     with context:
