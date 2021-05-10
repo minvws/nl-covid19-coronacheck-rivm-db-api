@@ -1,5 +1,7 @@
 import os
 import psycopg2
+import datetime
+import time
 
 import pytest
 
@@ -7,8 +9,8 @@ from event_provider import create_app
 from testcontainers.postgres import PostgresContainer
 from flask import current_app
 
-POSTGRES_USER = os.environ.get("TEST_POSTGRES_USER", "test")
-POSTGRES_PASSWORD = os.environ.get("TEST_POSTGRES_PASSWORD", "test")
+POSTGRES_USER = os.environ.get("TEST_POSTGRES_USER", "postgres")
+POSTGRES_PASSWORD = os.environ.get("TEST_POSTGRES_PASSWORD", "postgres")
 POSTGRES_DB = os.environ.get("TEST_POSTGRES_DB", "vcbe_db")
 
 PRINT_MSG = False
@@ -52,30 +54,20 @@ def backend_db_connection(backend_db_container):
 # TODO: Manually create a Postgres container (as we did for harrie4) so we can setup the db properly
 ##
 @pytest.fixture(scope='session')
+@pytest.mark.skipif(not os.path.isfile('tests/itests/vcbe_db_merged.sql'), "Could not create test database, vcbe_db_merged.sql not found")
 def backend_db(backend_db_connection):
-    sql1 = """
-    CREATE TABLE public.vaccinatie_event (
-      id SERIAL PRIMARY KEY,
-      bsn_external varchar(64) NOT NULL,
-      bsn_internal varchar(64) NOT NULL,
-      payload varchar(2048) NOT NULL,
-      iv VARCHAR(32) NOT NULL,
-      version_cims varchar(10) NOT NULL,
-      version_vcbe varchar(10) not null,
-      created_at   timestamp(0) default current_timestamp
-    );
-    """
-    sql2 = """
-    CREATE TABLE public.vaccinatie_event_logging (
-      created_date date not null,
-      bsn_external varchar(64) not null,
-      channel varchar(10) not null default 'cims',
-      created_at timestamp(0) not null,
-      events integer not null
-    )
-    """
-    with backend_db_connection.cursor() as cur:
-        cur.execute(sql1)
-        cur.execute(sql2)
+    sql_file = open('tests/itests/vcbe_db_merged.sql')
+    cursor = backend_db_connection.cursor()
+    cursor.execute(sql_file.read())
+    cursor.close()
+    sql_file.close()
+    # curr_date = datetime.date.today()
+    # next_date = curr_date + datetime.timedelta(days=1)
+    # no_delim = curr_date.isoformat().replace("-", "")
+    # with backend_db_connection.cursor() as cur:
+    #     sql = """
+    #         CREATE TABLE vaccinatie_event_logging_{} PARTITION OF vaccinatie_event_logging
+    #         FOR VALUES FROM ('{}') TO ('{}'); """.format(no_delim, curr_date.isoformat(), next_date.isoformat())
+    #     cur.execute(sql)
     backend_db_connection.commit()
     return backend_db_connection
