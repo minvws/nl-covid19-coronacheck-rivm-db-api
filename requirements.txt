@@ -2,3 +2,4 @@ pynacl
 psycopg2
 flask
 cryptography
+uwsgi
