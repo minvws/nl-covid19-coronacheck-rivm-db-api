@@ -78,11 +78,12 @@ def unpad(ct):  # pylint: disable=invalid-name
 def decrypt_aes(enc, key, iv):  # pylint: disable=invalid-name
     """Decrypt AES encrypted data"""
     iv = HexEncoder.decode(iv)
+    if not iv:
+        iv = bytearray(16)
     cipher = Cipher(algorithms.AES(bytes(key, "utf-8")), modes.CBC(iv))
     decryptor = cipher.decryptor()
     dec = decryptor.update(enc) + decryptor.finalize()
     return unpad(dec.decode("utf-8"))
-
 
 def hash_bsn(bsn):
     """Hash a bsn"""

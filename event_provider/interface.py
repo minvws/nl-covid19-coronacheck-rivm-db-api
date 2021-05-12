@@ -48,13 +48,12 @@ def check_information(id_hash):
 def get_events(enc_bsn, nonce, id_hash):
     """Get all events belonging to a certain bsn"""
     bsn = decrypt_bsn(enc_bsn, nonce)
-    hashed = hash_bsn(bsn)
-    data = get_events_db(hashed, id_hash)
-    res = convert_payloads(data)
+    data = get_events_db(id_hash)
+    res = convert_payloads(data, bsn)
     return res
 
 
-def convert_payloads(data):
+def convert_payloads(data, bsn):
     """Converts payloads in the DB to how it should be represented in the front"""
     payloads = []
     mapper = {
@@ -71,20 +70,24 @@ def convert_payloads(data):
         "hpkCode": "HPK-code",
     }
     for payload in data:
-        decrypted = decrypt_payload(payload["payload"], payload["iv"])
-        dic = json.loads(decrypted)
-        data = {}
-        errors = []
-        for key, mapped_key in mapper.items():
-            if mapped_key not in dic:
-                errors.append(mapped_key)
-                continue
-            data[key] = dic[mapped_key]
-        if errors:
-            raise PayloadConversionException(errors)
-        payloads.append(data)
+        if compare_bsn(bsn, payload['bsn_internal'], payload["iv"]):
+            decrypted = decrypt_payload(payload["payload"], payload["iv"])
+            dic = json.loads(decrypted)
+            data = {}
+            errors = []
+            for key, mapped_key in mapper.items():
+                if mapped_key not in dic:
+                    errors.append(mapped_key)
+                    continue
+                data[key] = dic[mapped_key]
+            if errors:
+                raise PayloadConversionException(errors)
+            payloads.append(data)
     return payloads
 
+def compare_bsn(bsn, enc_bsn, iv):
+    dec_bsn = decrypt_payload(enc_bsn, iv)
+    return dec_bsn.strip() == bsn.strip()
 
 def check_health():
     """Check the health of the service"""

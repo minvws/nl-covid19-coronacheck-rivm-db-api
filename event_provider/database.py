@@ -58,13 +58,13 @@ def check_info_db(id_hash):
     return res
 
 
-def get_events_db(hashed_bsn, id_hash):
+def get_events_db(id_hash):
     """Get all the payloads in the DB belonging to a certain id_hash"""
-    sql = "SELECT payload, iv FROM vaccinatie_event WHERE bsn_internal = %s;"
+    sql = "SELECT payload, iv, bsn_internal FROM vaccinatie_event WHERE bsn_external = %s;"
     conn = read_connection()
     res = []
     with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        cur.execute(sql, [hashed_bsn])
+        cur.execute(sql, [id_hash])
         res = cur.fetchall()
     conn.commit()
     log_request(id_hash, len(res))
