@@ -69,17 +69,18 @@ def test_full(rnonce, riv, bob_keys, alice_keys, client, context, backend_db):
         decryptor.payload_keydata = payload_key
         bsn = gen_bsn()
         id_hash = prepare_id_string_hash(bsn)
-        hashed_bsn = hash_bsn(bsn)
+        enc_bsn = encrypt_aes(bytes(pad(bsn), "utf-8"), bytes(payload_key, 'utf-8'), riv)
+        enc_bsn = HexEncoder.encode(enc_bsn)
+        enc_bsn = str(enc_bsn, "utf-8")
         payload = get_payload()
         enc_payload = encrypt_aes(bytes(pad(json.dumps(payload)), "utf-8"), bytes(payload_key, 'utf-8'), riv)
         enc_payload = HexEncoder.encode(enc_payload)
         enc_payload = str(enc_payload, "utf-8")
         iv = HexEncoder.encode(riv)
         iv = str(iv, "utf-8")
-        enc_bsn = encrypt_libsodium(bsn, rnonce, alice_keys['privkey'], bob_keys['pubkey'])['ctext']
         with backend_db.cursor() as cur:
             sql = "INSERT INTO vaccinatie_event (bsn_external, bsn_internal, payload, iv, version_cims, version_vcbe) VALUES (%s, %s, %s, %s, %s, %s);"
-            cur.execute(sql, [id_hash, hashed_bsn, enc_payload, iv, "test", "test"])
+            cur.execute(sql, [id_hash, enc_bsn, enc_payload, iv, "test", "test"])
         req_body = {'hashedBsn': id_hash}
         pre = len(get_log(backend_db))
         response = client.post(CHECK_PATH, json=req_body)
@@ -94,11 +95,12 @@ def test_full(rnonce, riv, bob_keys, alice_keys, client, context, backend_db):
         assert response.json["exists"] is False
         post = len(get_log(backend_db))
         assert post > pre
+        enc_bsn = encrypt_libsodium(bsn, rnonce, alice_keys['privkey'], bob_keys['pubkey'])['ctext']
         pre = post
         nonce = HexEncoder.encode(rnonce)
         nonce = str(nonce, "utf-8")
         req_body = {
-            'hashedBsn': hashed_bsn,
+            'hashedBsn': id_hash,
             'encryptedBsn': enc_bsn,
             'nonce': nonce,
         }

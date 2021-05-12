@@ -57,16 +57,16 @@ def test_get_events(context, backend_db):
     with context:
         test_bsn = "test"
         create_event(backend_db)
-        res = get_events_db(test_bsn, test_bsn)
+        res = get_events_db(test_bsn)
         assert res
         comp = len(res) + 1
         create_event(backend_db)
-        res = get_events_db(test_bsn, test_bsn)
+        res = get_events_db(test_bsn)
         assert res
         assert len(res) == comp
         create_event(backend_db, "other")
         pre = len(get_log(backend_db))
-        res = get_events_db(test_bsn, test_bsn)
+        res = get_events_db(test_bsn)
         assert res
         assert len(res) == comp
         logged = get_log(backend_db)
