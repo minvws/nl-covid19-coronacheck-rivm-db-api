@@ -5,7 +5,7 @@ server {
     ssl_certificate     /etc/nginx/ssl/inge5.acc.bavod.nl.crt;
     ssl_certificate_key /etc/nginx/ssl/inge5.acc.bavod.nl.key;
 
-    server_name i5.acc.br;
+    server_name inge5.acc.bavod.nl;
 
     location ~ /\.ht {
         deny all;
