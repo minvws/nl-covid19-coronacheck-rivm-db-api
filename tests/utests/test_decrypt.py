@@ -7,7 +7,7 @@ from nacl.encoding import HexEncoder
 from nacl.public import Box
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-from event_provider.decrypt import decrypt_libsodium, get_decryptor, Decryptor, decrypt_aes, hash_bsn
+from event_provider.decrypt import decrypt_libsodium, get_decryptor, Decryptor, decrypt_aes
 
 from flask import current_app
 import pytest
@@ -65,20 +65,3 @@ def test_decrypt_aes(riv):
     iv = HexEncoder.encode(riv)
     decrypted = json.loads(decrypt_aes(encrypted, key, iv))
     assert decrypted == data
-
-def test_hash_bsn(mocker):
-    class MockDecryptor(Decryptor):
-
-        def __init__(self, key):
-            self.bsn_keydata = {
-                'hashkey': key
-            }
-    key = rstring()
-    data = rstring()
-    ps = subprocess.Popen(['echo', '-n', data], stdout=subprocess.PIPE)
-    subproc = subprocess.check_output(['openssl', 'dgst', '-sha256', '-hmac', key], stdin=ps.stdout)
-    ps.wait()
-    mocker.patch('event_provider.decrypt.get_decryptor', return_value=MockDecryptor(key))
-    hashed = hash_bsn(data)
-    cap = re.match(r"\(stdin\)=[\s]*([^\s]*)", subproc.decode("utf-8"))
-    assert hashed == cap.group(1)

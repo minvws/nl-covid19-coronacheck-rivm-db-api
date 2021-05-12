@@ -85,7 +85,6 @@ def check_config():
             "decrypt_bsn_key_vws_pub",
             "decrypt_bsn_key_our_priv",
             "decrypt_payload_key",
-            "hash_bsn_key",
         ]
         for file in keyfiles:
             if file not in config["DEFAULT"]:

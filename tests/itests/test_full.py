@@ -1,11 +1,14 @@
 import random
 import json
+import os
+import hmac
+import hashlib
 from uuid import uuid4
 
 import pytest
 from nacl.encoding import HexEncoder, Base64Encoder
 from tests.utests.test_decrypt import encrypt_libsodium, encrypt_aes, rstring, pad
-from event_provider.decrypt import hash_bsn, get_decryptor
+from event_provider.decrypt import get_decryptor
 from .test_database import get_log
 
 CHECK_PATH='/v1/check-bsn'
@@ -17,6 +20,12 @@ def mock_database(mocker, backend_db):
 
 def gen_bsn():
     return ''.join(random.choice("0123456789") for x in range(9))
+
+def hash_bsn(bsn):
+    """Hash a bsn"""
+    key = os.urandom(16)
+    hma = hmac.new(key, bsn.encode(), hashlib.sha256)
+    return hma.hexdigest()
 
 def prepare_id_string_hash(bsn):
     string = bsn + "-Test-Testerson-01"

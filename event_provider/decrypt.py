@@ -18,12 +18,9 @@ class Decryptor:  # pylint: disable=too-few-public-methods
         privkey = rawkey_from_file(keyfile)
         keyfile = current_app.config["DEFAULT"]["decrypt_bsn_key_vws_pub"]
         pubkey = rawkey_from_file(keyfile)
-        keyfile = current_app.config["DEFAULT"]["hash_bsn_key"]
-        hashkey = rawkey_from_file(keyfile)
         self.bsn_keydata = {
             "privkey": privkey,
             "pubkey": pubkey,
-            "hashkey": hashkey,
         }
         keyfile = current_app.config["DEFAULT"]["decrypt_payload_key"]
         key = rawkey_from_file(keyfile)
@@ -84,13 +81,6 @@ def decrypt_aes(enc, key, iv):  # pylint: disable=invalid-name
     decryptor = cipher.decryptor()
     dec = decryptor.update(enc) + decryptor.finalize()
     return unpad(dec.decode("utf-8"))
-
-def hash_bsn(bsn):
-    """Hash a bsn"""
-    decryptor = get_decryptor()
-    key = decryptor.bsn_keydata["hashkey"]
-    hma = hmac.new(bytes(key, "utf-8"), bsn.encode(), hashlib.sha256)
-    return hma.hexdigest()
 
 
 def rawkey_from_file(keyfile):

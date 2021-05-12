@@ -9,7 +9,7 @@ from event_provider.database import (
     read_connection,
     write_connection,
 )
-from event_provider.decrypt import decrypt_bsn, decrypt_payload, hash_bsn
+from event_provider.decrypt import decrypt_bsn, decrypt_payload
 
 
 class PayloadConversionException(Exception):
@@ -111,7 +111,6 @@ def check_health():
         "decrypt_bsn_key_vws_pub",
         "decrypt_bsn_key_our_priv",
         "decrypt_payload_key",
-        "hash_bsn_key",
     ]
     for key in keyfiles:
         path = current_app.config["DEFAULT"][key]
