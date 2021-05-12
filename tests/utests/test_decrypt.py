@@ -1,8 +1,6 @@
 import json
 import random
 import string
-import subprocess
-import re
 from nacl.encoding import HexEncoder
 from nacl.public import Box
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
@@ -10,7 +8,6 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from event_provider.decrypt import decrypt_libsodium, get_decryptor, Decryptor, decrypt_aes
 
 from flask import current_app
-import pytest
 
 def rstring(size=32):
     key = ''.join(random.choice(string.ascii_letters) for x in range(size))

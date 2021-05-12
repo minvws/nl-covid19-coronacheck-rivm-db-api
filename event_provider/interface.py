@@ -70,7 +70,7 @@ def convert_payloads(data, bsn):
         "hpkCode": "HPK-code",
     }
     for payload in data:
-        if compare_bsn(bsn, payload['bsn_internal'], payload["iv"]):
+        if compare_bsn(bsn, payload["bsn_internal"], payload["iv"]):
             decrypted = decrypt_payload(payload["payload"], payload["iv"])
             dic = json.loads(decrypted)
             data = {}
@@ -85,9 +85,11 @@ def convert_payloads(data, bsn):
             payloads.append(data)
     return payloads
 
+
 def compare_bsn(bsn, enc_bsn, iv):
     dec_bsn = decrypt_payload(enc_bsn, iv)
     return dec_bsn.strip() == bsn.strip()
+
 
 def check_health():
     """Check the health of the service"""

@@ -3,7 +3,6 @@ import json
 import os
 import hmac
 import hashlib
-from uuid import uuid4
 
 import pytest
 from nacl.encoding import HexEncoder, Base64Encoder

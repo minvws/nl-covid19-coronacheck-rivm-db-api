@@ -1,5 +1,4 @@
 import random
-from uuid import uuid4
 
 import pytest
 from event_provider.database import log_request, check_info_db, get_events_db, write_connection, read_connection

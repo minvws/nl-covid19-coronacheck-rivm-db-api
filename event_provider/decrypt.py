@@ -1,6 +1,4 @@
 """Decryptor functions"""
-import hashlib
-import hmac
 import nacl.secret
 import nacl.public
 import nacl.utils

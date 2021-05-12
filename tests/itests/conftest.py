@@ -1,13 +1,9 @@
 import os
 import psycopg2
-import datetime
-import time
 
 import pytest
 
-from event_provider import create_app
 from testcontainers.postgres import PostgresContainer
-from flask import current_app
 
 POSTGRES_USER = os.environ.get("TEST_POSTGRES_USER", "postgres")
 POSTGRES_PASSWORD = os.environ.get("TEST_POSTGRES_PASSWORD", "postgres")
