@@ -43,6 +43,8 @@ def post_information():
     except psycopg2.Error as err:
         res = "A database error occured: " + str(err)
         return return_error(res, 500)
+    except Exception as err:
+        return return_error(str(err), 500)
     resp = {"exists": check}
     return jsonify(resp)
 
@@ -67,7 +69,7 @@ def post_events():
     except (CryptoError, UnsupportedAlgorithm, AlreadyFinalized) as err:
         res = "An error occured while decrypting: " + str(err)
         return return_error(res, 500)
-    except PayloadConversionException as err:
+    except Exception as err:
         return return_error(str(err), 500)
     return jsonify(events)
 
