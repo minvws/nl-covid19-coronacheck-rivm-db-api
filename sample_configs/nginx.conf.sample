@@ -1,0 +1,24 @@
+server {
+    listen 0.0.0.0:443 ssl;
+
+    include /etc/nginx/tls_params;
+    ssl_certificate     /etc/nginx/ssl/inge5.acc.bavod.nl.crt;
+    ssl_certificate_key /etc/nginx/ssl/inge5.acc.bavod.nl.key;
+
+    server_name inge5.acc.bavod.nl;
+
+    location ~ /\.ht {
+        deny all;
+    }
+
+    access_log  /var/log/nginx/inge-5.access.log;
+    error_log   /var/log/nginx/inge-5.error.log;
+
+    # Per site configuration
+    ssl_client_certificate /etc/nginx/ssl/inge5.acc.bavod.nl.ca;
+    ssl_verify_client on;
+    location / {
+      include uwsgi_params;
+      uwsgi_pass unix:/tmp/inge5.sock;
+    }
+}
