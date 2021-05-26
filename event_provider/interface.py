@@ -68,6 +68,10 @@ def convert_payloads(data, bsn):
         "vaccinatiestatus": "Vaccinatiestatus",
         "ouderDan16": "Ouderdan16",
         "hpkCode": "HPK-code",
+        "Voornamen": "Voornamen",
+        "Voorvoegsel": "Voorvoegsel",
+        "Geslachtsnaam": "Geslachtsnaam",
+        "Geboortedatum": "Geboortedatum"
     }
     for payload in data:
         if compare_bsn(bsn, payload["bsn_internal"], payload["iv"]):
