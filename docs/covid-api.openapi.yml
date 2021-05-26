@@ -86,7 +86,7 @@ components:
         vaccinatiedatum:
           type: string
           description: Vaccinatie datum
-          example: 2021-02-28T00:00:00
+          example: "2021-02-28T00:00:00"
         uitvoerende:
           type: string
           description: Naam van het vaccin
@@ -120,7 +120,7 @@ components:
           type: string
           description: Geboorte Datum
           maxLength: 10
-          example: 1941-04-24
+          example: "1941-04-24"
         geslachtsnaam:
           type: string
           description: Geslachtsnaam (achternaam)
