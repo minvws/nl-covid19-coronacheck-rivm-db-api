@@ -68,10 +68,10 @@ def convert_payloads(data, bsn):
         "vaccinatiestatus": "Vaccinatiestatus",
         "ouderDan16": "Ouderdan16",
         "hpkCode": "HPK-code",
-        "Voornamen": "Voornamen",
-        "Voorvoegsel": "Voorvoegsel",
-        "Geslachtsnaam": "Geslachtsnaam",
-        "Geboortedatum": "Geboortedatum"
+        "voornamen": "Voornamen",
+        "voorvoegsel": "Voorvoegsel",
+        "geslachtsnaam": "Geslachtsnaam",
+        "geboortedatum": "Geboortedatum"
     }
     for payload in data:
         if compare_bsn(bsn, payload["bsn_internal"], payload["iv"]):
@@ -90,7 +90,7 @@ def convert_payloads(data, bsn):
     return payloads
 
 
-def compare_bsn(bsn, enc_bsn, iv):
+def compare_bsn(bsn, enc_bsn, iv): #pylint: disable=invalid-name
     dec_bsn = decrypt_payload(enc_bsn, iv)
     return dec_bsn.strip() == bsn.strip()
 
