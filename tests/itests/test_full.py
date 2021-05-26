@@ -63,10 +63,10 @@ def compare_payloads(new, orig):
     assert new['vaccinatiestatus'] == orig['Vaccinatiestatus']
     assert new['ouderDan16'] == orig['Ouderdan16']
     assert new['hpkCode'] == orig['HPK-code']
-    assert new['Voornamen'] == orig['Voornamen']
-    assert new['Voorvoegsel'] == orig['Voorvoegsel']
-    assert new['Geslachtsnaam'] == orig['Geslachtsnaam']
-    assert new['Geboortedatum'] == orig['Geboortedatum']
+    assert new['Voornamen'] == orig['voornamen']
+    assert new['Voorvoegsel'] == orig['voorvoegsel']
+    assert new['Geslachtsnaam'] == orig['geslachtsnaam']
+    assert new['Geboortedatum'] == orig['geboortedatum']
     assert "other" not in new
     assert "is" not in new
 
