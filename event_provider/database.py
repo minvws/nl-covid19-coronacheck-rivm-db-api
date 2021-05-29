@@ -40,7 +40,7 @@ def log_request(id_hash, count):
     curr_date = datetime.date.today().isoformat()
     with conn.cursor() as cur:
         cur.execute(
-            sql, [curr_date, id_hash, current_app.config.get("identfier", "BGP"), count]
+            sql, [curr_date, id_hash, current_app.config.get("identfier", "DGP"), count]
         )
     conn.commit()
 
