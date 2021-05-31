@@ -3,7 +3,11 @@
 
 name: Python application
 
-on: [ push, pull_request ]
+on:
+  pull_request:
+    branches: ['master']
+  push:
+    branches: ['master']
 
 jobs:
   code-quality:
@@ -25,21 +29,8 @@ jobs:
   tests:
     runs-on: ubuntu-20.04
 
-    services:
-      postgres:
-        image: postgres:12.5
-        env:
-          POSTGRES_USER: writer
-          POSTGRES_PASSWORD: writer
-          POSTGRES_DB: vcbe_db
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
     steps:
       - uses: actions/checkout@v2
-      - name: grant database permissions
-        run: PGPASSWORD=writer psql -U writer -d vcbe_db -h 127.0.0.1 -p 5432 <<< "CREATE ROLE reader; ALTER ROLE reader WITH PASSWORD 'reader'; ALTER ROLE reader WITH LOGIN;"
       - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
@@ -47,7 +38,6 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
           make venv
           sudo apt install easy-rsa softhsm2 libsofthsm2 gnutls-bin libengine-pkcs11-openssl php
       - name: Create config
@@ -63,4 +53,4 @@ jobs:
         run: 
           tr -dc A-Za-z0-9 </dev/urandom | head -c 32 > secrets/db.key
       - name: Test with unittest
-        run: HARRIE_RUNNER=GITHUB_ACTION SOFTHSM2_CONF=$(pwd)/softhsm2.conf make test
+        run: make test
