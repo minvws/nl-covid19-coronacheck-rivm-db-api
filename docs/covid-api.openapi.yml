@@ -1,0 +1,164 @@
+openapi: 3.0.2
+info:
+  title: CIMS Vaccinatie-event API
+  description: De API biedt de mogelijkheid om gegevens te kunnen inzien voor Vaccinatie-event in het kader van SARS-CoV-2.
+  version: '1.0'
+tags:
+  - name: CIMS Vaccinatie event
+paths:
+  /v1/vaccinaties:
+    post:
+      description: Haal de vaccinatiegegevens op
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HashedBSN'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vaccinaties'
+        '204':
+          description: Geen vaccinaties gevonden
+        '500':
+          description: The server has made a boo-boo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Foutmelding'
+      tags:
+        - Vaccinatie-event
+  /v1/check-bsn:
+    post:
+      summary: Check of bsn bekend is binnen CIMS
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BSNCheck'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BSNCheckResponse'
+        '500':
+          description: The server has made a boo-boo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Foutmelding'
+      tags:
+        - Vaccinatie-event
+components:
+  schemas:
+    Vaccinaties:
+      type: array
+      items:
+        $ref: '#/components/schemas/Vaccinatie'
+    Vaccinatie:
+      type: object
+      properties:
+        vaccinsoort:
+          type: string
+          description: Soort vaccin
+          maxLength: 200
+        vaccinmerknaam:
+          type: string
+          description: Merknaam van het vaccin
+          maxLength: 50
+        productnaam:
+          type: string
+          description: productnaam van het vaccin
+          maxLength: 50
+        leverancier:
+          type: string
+          description: De leverancier van het vaccin
+          maxLength: 50
+        batchnummer:
+          type: string
+          description: Unieke identificatie van de vaccin batch
+          maxLength: 50
+        vaccinatiedatum:
+          type: string
+          description: Vaccinatie datum
+          example: "2021-02-28T00:00:00"
+        uitvoerende:
+          type: string
+          description: Naam van het vaccin
+          maxLength: 50
+        vaccinatieland:
+          type: string
+          description: Land van vaccinatie
+          maxLength: 50
+        vaccinatiestatus:
+          type: string
+          description: Land van vaccinatie
+          maxLength: 50
+        ouderDan16:
+          type: boolean
+          description: Land van vaccinatie
+        bsnencrypted:
+          type: string
+          description: Encrypted BSN
+          maxLength: 50
+        voornamen:
+          type: string
+          description: Voornamen
+          maxLength: 50
+          example: Verdronken
+        voorvoegsel:
+          type: string
+          description: Voorvoegsel
+          maxLength: 50
+          example: den
+        geboortedatum:
+          type: string
+          description: Geboorte Datum
+          maxLength: 10
+          example: "1941-04-24"
+        geslachtsnaam:
+          type: string
+          description: Geslachtsnaam (achternaam)
+          maxLength: 50
+          example: Vlinder
+    BSNCheck:
+      type: object
+      properties:
+        hashedBsn:
+          type: string
+    BSNCheckResponse:
+      type: object
+      properties:
+        exists:
+          type: boolean
+    HashedBSN:
+      type: object
+      properties:
+        hashedBsn:
+          type: string
+        encryptedBsn:
+          type: string
+        nonce:
+          type: string
+    Foutmelding:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Code van fout
+        melding:
+          type: string
+          description: Korte omschrijving van fout
+          maxLength: 100
+  securitySchemes:
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: user_key
+security:
+  - apiKeyAuth: []

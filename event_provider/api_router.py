@@ -8,7 +8,6 @@ from event_provider.interface import (
     check_information,
     get_events,
     check_health,
-    PayloadConversionException,
     HealthException,
 )
 

@@ -43,6 +43,10 @@ def get_payload():
         "Vaccinatiestatus": "test",
         "Ouderdan16": True,
         "HPK-code": "test",
+        "Voornamen": "test",
+        "Voorvoegsel": "de",
+        "Geslachtsnaam": "test",
+        "Geboortedatum": "test",
         "other": "data",
         "is": "ignored"
     }
@@ -59,6 +63,10 @@ def compare_payloads(new, orig):
     assert new['vaccinatiestatus'] == orig['Vaccinatiestatus']
     assert new['ouderDan16'] == orig['Ouderdan16']
     assert new['hpkCode'] == orig['HPK-code']
+    assert new['voornamen'] == orig['Voornamen']
+    assert new['voorvoegsel'] == orig['Voorvoegsel']
+    assert new['geslachtsnaam'] == orig['Geslachtsnaam']
+    assert new['geboortedatum'] == orig['Geboortedatum']
     assert "other" not in new
     assert "is" not in new
 
