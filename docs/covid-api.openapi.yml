@@ -13,7 +13,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BSNCheck'
+              $ref: '#/components/schemas/HashedBSN'
       responses:
         '200':
           description: OK
@@ -38,7 +38,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/HashedBSN'
+              $ref: '#/components/schemas/BSNCheck'
       responses:
         '200':
           description: Success
@@ -86,7 +86,7 @@ components:
         vaccinatiedatum:
           type: string
           description: Vaccinatie datum
-          example: 2021-02-28T00:00:00
+          example: "2021-02-28T00:00:00"
         uitvoerende:
           type: string
           description: Naam van het vaccin
@@ -120,7 +120,7 @@ components:
           type: string
           description: Geboorte Datum
           maxLength: 10
-          example: 1941-04-24
+          example: "1941-04-24"
         geslachtsnaam:
           type: string
           description: Geslachtsnaam (achternaam)
@@ -129,7 +129,7 @@ components:
     BSNCheck:
       type: object
       properties:
-        bsn:
+        hashedBsn:
           type: string
     BSNCheckResponse:
       type: object
@@ -140,6 +140,10 @@ components:
       type: object
       properties:
         hashedBsn:
+          type: string
+        encryptedBsn:
+          type: string
+        nonce:
           type: string
     Foutmelding:
       type: object
@@ -158,4 +162,3 @@ components:
       name: user_key
 security:
   - apiKeyAuth: []
-

@@ -143,6 +143,7 @@ disable=print-statement,
         global-statement,
         duplicate-code,
         fixme,
+        assigning-non-slot,
         broad-except
 
 # Enable the message, report, category or checker with the given id(s). You can
