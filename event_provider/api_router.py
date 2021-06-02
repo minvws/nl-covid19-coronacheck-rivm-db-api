@@ -19,12 +19,18 @@ def get_health():
     """Get endpoint to test the health of the service"""
     melding = "ok"
     code = 200
+    data = {
+        "healthy": True,
+        "errors": []
+    }
     try:
         check_health()
     except HealthException as ex:
         melding = str(ex)
         code = ex.code
-    return return_error(melding, code)  # Same format can be used for 200 response
+        data["healthy"] = False
+        data["errors"].append(melding)
+    return return_json(data, code)
 
 
 @api.route("/v1/check-bsn", methods=["POST"])
@@ -107,4 +113,7 @@ def check_data(data, required):
 def return_error(msg, code):
     """Helper function to create error object"""
     data = {"code": code, "melding": msg}
+    return return_json(data, code)
+
+def return_json(data, code):
     return jsonify(data), code
