@@ -64,11 +64,13 @@ def test_health(client, mocker):
     mocker.patch('event_provider.api_router.check_health', return_value=True)
     response = client.get('/health')
     assert response.status_code == 200
-    assert response.json['code'] == 200
+    assert response.json['healthy'] == True
+    assert not response.json['errors']
     mocker.patch('event_provider.api_router.check_health', lambda: raise_error(HealthException("test")))
     response = client.get('/health')
     assert response.status_code == 500
-    assert response.json['code'] == 500
+    assert response.json['healthy'] == False
+    assert response.json['errors']
 
 def test_check_bsn(client, mocker, test_data):
     mocker.patch('event_provider.api_router.check_information', return_value=False)

@@ -44,13 +44,7 @@ def test_check_info(context, backend_db):
         assert res
         logged = get_log(backend_db)
         post = len(logged)
-        found = False
-        for row in logged:
-            assert row[0] == test_bsn
-            if row[1] == len(res):
-                found = True
-        assert found
-        assert post > pre
+        assert post == pre
 
 def test_get_events(context, backend_db):
     with context:
