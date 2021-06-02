@@ -103,14 +103,14 @@ def test_full(rnonce, riv, bob_keys, alice_keys, client, context, backend_db):
         assert response.status_code == 200
         assert response.json["exists"] is True
         post = len(get_log(backend_db))
-        assert post > pre
+        assert post == pre
         pre = post
         req_body = {'hashedBsn': 'fake_hash'}
         response = client.post(CHECK_PATH, json=req_body)
         assert response.status_code == 200
         assert response.json["exists"] is False
         post = len(get_log(backend_db))
-        assert post > pre
+        assert post == pre
         enc_bsn = encrypt_libsodium(bsn, rnonce, alice_keys['privkey'], bob_keys['pubkey'])['ctext']
         pre = post
         nonce = HexEncoder.encode(rnonce)
