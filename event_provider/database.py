@@ -54,7 +54,8 @@ def check_info_db(id_hash):
         cur.execute(sql, [id_hash])
         res = cur.fetchall()
     conn.commit()
-    log_request(id_hash, len(res))
+    # No need to log unomi requests as not medical
+    #log_request(id_hash, len(res))
     return res
 
 
