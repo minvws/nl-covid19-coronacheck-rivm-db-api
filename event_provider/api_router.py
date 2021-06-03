@@ -66,8 +66,9 @@ def post_events():
     bsn = data["encryptedBsn"]
     nonce = data["nonce"]
     id_hash = data["hashedBsn"]
+    role = data.get("roleidentifier", None)
     try:
-        events = get_events(bsn, nonce, id_hash)
+        events = get_events(bsn, nonce, id_hash, role)
     except psycopg2.Error as err:
         res = "A database error occured: " + str(err)
         return return_error(res, 500)

@@ -31,16 +31,16 @@ def write_connection():
     return g.write_db
 
 
-def log_request(id_hash, count):
+def log_request(id_hash, count, role):
     """Log the request to the db"""
     sql = """INSERT INTO vaccinatie_event_logging
-        (created_date, bsn_external, channel, created_at, events)
-                VALUES (%s,%s,%s,CURRENT_TIMESTAMP,%s);"""
+        (created_date, bsn_external, channel, created_at, events, nen_role)
+                VALUES (%s,%s,%s,CURRENT_TIMESTAMP,%s,%s);"""
     conn = write_connection()
     curr_date = datetime.date.today().isoformat()
     with conn.cursor() as cur:
         cur.execute(
-            sql, [curr_date, id_hash, current_app.config.get("identfier", "DGP"), count]
+            sql, [curr_date, id_hash, current_app.config.get("identfier", "DGP"), count, role]
         )
     conn.commit()
 
@@ -59,7 +59,7 @@ def check_info_db(id_hash):
     return res
 
 
-def get_events_db(id_hash):
+def get_events_db(id_hash, role):
     """Get all the payloads in the DB belonging to a certain id_hash"""
     sql = "SELECT payload, iv, bsn_internal FROM vaccinatie_event WHERE bsn_external = %s;"
     conn = read_connection()
@@ -68,5 +68,5 @@ def get_events_db(id_hash):
         cur.execute(sql, [id_hash])
         res = cur.fetchall()
     conn.commit()
-    log_request(id_hash, len(res))
+    log_request(id_hash, len(res), role)
     return res

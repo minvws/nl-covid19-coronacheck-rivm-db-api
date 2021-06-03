@@ -513,3 +513,4 @@ end;
 $function$
 ;
 
+ALTER TABLE public.vaccinatie_event_logging ADD COLUMN nen_role CHAR(2);

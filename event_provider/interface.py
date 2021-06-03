@@ -45,10 +45,10 @@ def check_information(id_hash):
     return bool(res)
 
 
-def get_events(enc_bsn, nonce, id_hash):
+def get_events(enc_bsn, nonce, id_hash, role):
     """Get all events belonging to a certain bsn"""
     bsn = decrypt_bsn(enc_bsn, nonce)
-    data = get_events_db(id_hash)
+    data = get_events_db(id_hash, role)
     res = convert_payloads(data, bsn)
     return res
 
