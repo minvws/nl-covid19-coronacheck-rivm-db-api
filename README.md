@@ -64,12 +64,12 @@ It then returns the following data:
 
 ```
 {
-	"melding": "ok"|"ERROR_MSG",
-	"code": int
+	"healthy": True|False,
+	"errors": ["error_msg"]
 }
 ```
 
-The response code header is also set to the value of the `code` field.
+The response code header is also set to an appropriate status code
 
 
 ### Getting error responses
