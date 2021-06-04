@@ -60,7 +60,9 @@ def decrypt_payload(payload, iv):  # pylint: disable=invalid-name
 
 def unpad(ct):  # pylint: disable=invalid-name
     """Removes pkcs7 padding"""
-    return ct[: -ord(ct[-1])]
+    if ct: # No text means no padding
+        return ct[: -ord(ct[-1])]
+    return ct
 
 
 ###
