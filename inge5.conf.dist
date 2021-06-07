@@ -18,3 +18,8 @@ port = 5432
 user = writer
 password = writer
 database = vcbe_db
+
+[logging]
+log_level = ERROR
+log_format = [%%(levelname)s] [%%(asctime)-15s] %%(message)s
+log_location = /dev/log
