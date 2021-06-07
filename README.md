@@ -105,8 +105,8 @@ General, default config values
 * `decrypt_bsn_key_our_priv` - The location of the local private key, combines with the public key from VWS to decrypt the BSN.
 * `decrypt_bsn_key_vws_pub` - The location of the public key from vws, combines with our local private key to encrypt the BSN,
 * `decrypt_payload_key` - The location of the aes256 key used to decrypt the database payload data.
-* `host` - The address to run on (OPTIONAL, defaults to localhost)
-* `port` - The port to listen on (OPTIONAL, defaults to 5000)
+* `host` - The address to run on (OPTIONAL, defaults to localhost, ignored when using uwsgi)
+* `port` - The port to listen on (OPTIONAL, defaults to 5000, ignored when using uwsgi)
 
 
 The decrypt_bsn_key_* key pair is generated with:
@@ -122,6 +122,16 @@ There are two database sections in the config: `database_read` for the read conn
 * `user` - The user for this connection
 * `password` - The password for the database user
 * `database` - The name of the database to connect to
+
+#### Logging
+Logging can be optionally configured. Any errors encountered during a session will be logged at `ERROR` level, an additional stacktrace will be logged at `DEBUG` level. 
+Additionally, if an incomplete request comes in (so with missing data), it is logged at `WARNING` level.
+
+The following fields are configurable for logging:
+
+* `log_level` - String representation of the log level, defaults to `ERROR`
+* `log_format` - Format string for logging, defaults to `[%%(levelname)s] [%%(asctime)-15s] %%(message)s`
+* `log_location` - File to log to, defaults to `/dev/log`
 
 ## Running
 
