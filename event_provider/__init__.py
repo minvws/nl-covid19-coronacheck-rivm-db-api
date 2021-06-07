@@ -1,5 +1,8 @@
 """Module Script to start Flask properly"""
+import logging
 from os.path import isfile
+from logging.handlers import SysLogHandler
+from logging import Formatter
 
 from flask import Flask, g
 from .api_router import api
@@ -31,19 +34,34 @@ class ConfigurationException(Exception):
 def create_app():
     """create and configure the app"""
     app = Flask(__name__)
-    # app.logger.setLevel(logging.INFO)
-
-    # try:
-    #     syslog_handler = SysLogHandler(address='/dev/log')
-    #     app.logger.addHandler(syslog_handler)
-    # except:
-    #     app.logger.error('Could not add Sysloghandler.')
 
     check_config()
 
     app.config["DEFAULT"] = config["DEFAULT"]
     app.config["database_write"] = config["database_write"]
     app.config["database_read"] = config["database_read"]
+
+    default_logging = {
+        'log_level': 'ERROR',
+        'log_format': '[%%(levelname)s] [%%(asctime)-15s] %%(message)s',
+        'log_location': '/dev/log'
+    }
+
+    if 'logging' not in config:
+        config['logging'] = default_logging
+    else:
+        for key, value in default_logging.items():
+            if key not in config['logging']:
+                config['logging']['key'] = value
+
+    log_level = config['logging']['log_level'].upper()
+    log_fmt = config['logging']['log_format']
+    log_location = config['logging']['log_location']
+
+    log_handler = SysLogHandler(facility=SysLogHandler.LOG_DAEMON, address=log_location)
+    log_handler.setFormatter(Formatter(fmt=log_fmt))
+    log_handler.setLevel(getattr(logging, log_level))
+    app.logger.addHandler(log_handler) # pylint: disable=no-member
 
     ##
     # This is pretty ugly, but it's the only way to "keep state"

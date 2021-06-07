@@ -30,6 +30,7 @@ def get_health():
         code = ex.code
         data["healthy"] = False
         data["errors"].append(melding)
+        current_app.logger.error(melding)
     return return_json(data, code)
 
 
@@ -41,17 +42,19 @@ def post_information():
     try:
         check_data(data, required)
     except MissingDataException as err:
+        current_app.logger.warning(str(err))
         return return_error(str(err), 400)
     id_hash = data["hashedBsn"]
     try:
         check = check_information(id_hash)
     except psycopg2.Error as err:
+        current_app.logger.debug(traceback.format_exc())
         res = "A database error occured: " + str(err)
-        current_app.logger.warning(res)
+        current_app.logger.error(res)
         return return_error(res, 500)
     except Exception as err:
-        current_app.logger.debug(traceback.print_exc())
-        current_app.logger.warning(str(err))
+        current_app.logger.debug(traceback.format_exc())
+        current_app.logger.error(str(err))
         return return_error(str(err), 500)
     resp = {"exists": check}
     return jsonify(resp)
@@ -65,6 +68,7 @@ def post_events():
     try:
         check_data(data, required)
     except MissingDataException as err:
+        current_app.logger.warning(str(err))
         return return_error(str(err), 400)
     bsn = data["encryptedBsn"]
     nonce = data["nonce"]
@@ -73,17 +77,18 @@ def post_events():
     try:
         events = get_events(bsn, nonce, id_hash, role)
     except psycopg2.Error as err:
+        current_app.logger.debug(traceback.format_exc())
         res = "A database error occured: " + str(err)
-        current_app.logger.warning(res)
+        current_app.logger.error(res)
         return return_error(res, 500)
     except (CryptoError, UnsupportedAlgorithm, AlreadyFinalized) as err:
-        current_app.logger.debug(traceback.print_exc())
+        current_app.logger.debug(traceback.format_exc())
         res = "An error occured while decrypting: " + str(err)
-        current_app.logger.warning(res)
+        current_app.logger.error(res)
         return return_error(res, 500)
     except Exception as err:
-        current_app.logger.debug(traceback.print_exc())
-        current_app.logger.warning(str(err))
+        current_app.logger.debug(traceback.format_exc())
+        current_app.logger.error(str(err))
         return return_error(str(err), 500)
     return jsonify(events)
 
