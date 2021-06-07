@@ -34,13 +34,6 @@ class ConfigurationException(Exception):
 def create_app():
     """create and configure the app"""
     app = Flask(__name__)
-    # app.logger.setLevel(logging.INFO)
-
-    # try:
-    #     syslog_handler = SysLogHandler(address='/dev/log')
-    #     app.logger.addHandler(syslog_handler)
-    # except:
-    #     app.logger.error('Could not add Sysloghandler.')
 
     check_config()
 
@@ -67,8 +60,8 @@ def create_app():
 
     log_handler = SysLogHandler(facility=SysLogHandler.LOG_DAEMON, address=log_location)
     log_handler.setFormatter(Formatter(fmt=log_fmt))
-    app.logger.addHandler(log_handler)
-    app.logger.setLevel(getattr(logging, log_level))
+    app.logger.addHandler(log_handler) # pylint: disable=no-member
+    app.logger.setLevel(getattr(logging, log_level)) # pylint: disable=no-member
 
     ##
     # This is pretty ugly, but it's the only way to "keep state"
