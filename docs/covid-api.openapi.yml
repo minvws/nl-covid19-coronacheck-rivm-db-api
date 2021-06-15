@@ -97,11 +97,11 @@ components:
           maxLength: 50
         vaccinatiestatus:
           type: string
-          description: Land van vaccinatie
+          description: Status van de vaccinatie
           maxLength: 50
         ouderDan16:
           type: boolean
-          description: Land van vaccinatie
+          description: Is de persoon ouder dan 16 jaar?
         bsnencrypted:
           type: string
           description: Encrypted BSN
@@ -120,12 +120,17 @@ components:
           type: string
           description: Geboorte Datum
           maxLength: 10
+          pattern: '^\d{4}-\d{2}-\d{2}$'
           example: "1941-04-24"
         geslachtsnaam:
           type: string
           description: Geslachtsnaam (achternaam)
           maxLength: 50
           example: Vlinder
+        hpkCode:
+          type: string
+          description: hpkcode
+          maxLength: 50
     BSNCheck:
       type: object
       properties:
