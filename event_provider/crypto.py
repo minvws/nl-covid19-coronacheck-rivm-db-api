@@ -1,4 +1,6 @@
 """Decryptor functions"""
+import secrets
+import uuid
 import nacl.secret
 import nacl.public
 import nacl.utils
@@ -60,7 +62,7 @@ def decrypt_payload(payload, iv):  # pylint: disable=invalid-name
 
 def unpad(ct):  # pylint: disable=invalid-name
     """Removes pkcs7 padding"""
-    if ct: # No text means no padding
+    if ct:  # No text means no padding
         return ct[: -ord(ct[-1])]
     return ct
 
@@ -94,3 +96,9 @@ def rawkey_from_file(keyfile):
         ) from error
 
     return rawkey
+
+
+def id_to_uuid(identifier: int) -> uuid.UUID:
+    id_bytes = identifier.to_bytes(8, "big")
+    rand_bytes = secrets.token_bytes(8)
+    return uuid.UUID(bytes=id_bytes + rand_bytes)

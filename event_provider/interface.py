@@ -9,7 +9,7 @@ from event_provider.database import (
     read_connection,
     write_connection,
 )
-from event_provider.decrypt import decrypt_bsn, decrypt_payload
+from event_provider.crypto import decrypt_bsn, decrypt_payload, id_to_uuid
 
 
 class PayloadConversionException(Exception):
@@ -71,13 +71,13 @@ def convert_payloads(data, bsn):
         "voornamen": "Voornamen",
         "voorvoegsel": "Voorvoegsel",
         "geslachtsnaam": "Geslachtsnaam",
-        "geboortedatum": "Geboortedatum"
+        "geboortedatum": "Geboortedatum",
     }
     for payload in data:
         if compare_bsn(bsn, payload["bsn_internal"], payload["iv"]):
             decrypted = decrypt_payload(payload["payload"], payload["iv"])
             dic = json.loads(decrypted)
-            data = {}
+            data = {"uniek": id_to_uuid(payload["id"])}
             errors = []
             for key, mapped_key in mapper.items():
                 if mapped_key not in dic:
@@ -90,7 +90,7 @@ def convert_payloads(data, bsn):
     return payloads
 
 
-def compare_bsn(bsn, enc_bsn, iv): #pylint: disable=invalid-name
+def compare_bsn(bsn, enc_bsn, iv):  # pylint: disable=invalid-name
     dec_bsn = decrypt_payload(enc_bsn, iv)
     return dec_bsn.strip() == bsn.strip()
 
