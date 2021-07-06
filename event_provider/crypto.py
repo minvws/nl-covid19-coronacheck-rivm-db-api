@@ -102,3 +102,11 @@ def id_to_uuid(identifier: int) -> uuid.UUID:
     id_bytes = identifier.to_bytes(8, "big")
     rand_bytes = secrets.token_bytes(8)
     return uuid.UUID(bytes=id_bytes + rand_bytes)
+
+
+def uuid_to_id(uuid_in: uuid.UUID) -> int:
+    return int(uuid_in.hex[:16], base=16)
+
+
+def uuid_str_to_id(uuid_str: str) -> int:
+    return uuid_to_id(uuid.UUID(uuid_str))
