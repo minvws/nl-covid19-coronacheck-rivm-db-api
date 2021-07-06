@@ -91,6 +91,11 @@ components:
           type: string
           description: Naam van het vaccin
           maxLength: 50
+        uniek:
+          type: string
+          format: uuid
+          description: an identifier used to identify this database record
+          maxLength: 36
         vaccinatieland:
           type: string
           description: Land van vaccinatie
