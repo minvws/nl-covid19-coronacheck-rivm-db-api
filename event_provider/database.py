@@ -43,7 +43,14 @@ def log_request(id_hash, count, role):
     with conn:
         with conn.cursor() as cur:
             cur.execute(
-                sql, [curr_date, id_hash, current_app.config.get("identfier", "DGP"), count, role]
+                sql,
+                [
+                    curr_date,
+                    id_hash,
+                    current_app.config.get("identfier", "DGP"),
+                    count,
+                    role,
+                ],
             )
 
 
@@ -57,13 +64,13 @@ def check_info_db(id_hash):
             cur.execute(sql, [id_hash])
             res = cur.fetchall()
     # No need to log unomi requests as not medical
-    #log_request(id_hash, len(res))
+    # log_request(id_hash, len(res))
     return res
 
 
 def get_events_db(id_hash, role):
     """Get all the payloads in the DB belonging to a certain id_hash"""
-    sql = "SELECT payload, iv, bsn_internal FROM vaccinatie_event WHERE bsn_external = %s;"
+    sql = "SELECT id, payload, iv, bsn_internal FROM vaccinatie_event WHERE bsn_external = %s;"
     conn = read_connection()
     res = []
     with conn:

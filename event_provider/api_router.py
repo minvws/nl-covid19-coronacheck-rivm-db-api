@@ -19,10 +19,7 @@ def get_health():
     """Get endpoint to test the health of the service"""
     melding = "ok"
     code = 200
-    data = {
-        "healthy": True,
-        "errors": []
-    }
+    data = {"healthy": True, "errors": []}
     try:
         check_health()
     except HealthException as ex:
@@ -128,6 +125,7 @@ def return_error(msg, code):
     """Helper function to create error object"""
     data = {"code": code, "melding": msg}
     return return_json(data, code)
+
 
 def return_json(data, code):
     return jsonify(data), code

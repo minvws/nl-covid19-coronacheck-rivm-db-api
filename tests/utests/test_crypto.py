@@ -1,11 +1,12 @@
 import json
 import random
 import string
+import uuid
 from nacl.encoding import HexEncoder
 from nacl.public import Box
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
-from event_provider.decrypt import decrypt_libsodium, get_decryptor, Decryptor, decrypt_aes
+from event_provider.crypto import decrypt_libsodium, get_decryptor, Decryptor, decrypt_aes, id_to_uuid, uuid_to_id, uuid_str_to_id
 
 from flask import current_app
 
@@ -62,3 +63,12 @@ def test_decrypt_aes(riv):
     iv = HexEncoder.encode(riv)
     decrypted = json.loads(decrypt_aes(encrypted, key, iv))
     assert decrypted == data
+
+
+def test_id_to_uuid(mocker):
+    mocker.patch("secrets.token_bytes", return_value=b"a"*8)
+    identifier = 65*256**7+66
+    test_uuid = id_to_uuid(identifier)
+    assert test_uuid == uuid.UUID('41000000-0000-0042-6161-616161616161')
+    assert uuid_str_to_id(str(test_uuid)) == identifier
+    assert uuid_to_id(test_uuid) == identifier

@@ -6,8 +6,8 @@ import hashlib
 
 import pytest
 from nacl.encoding import HexEncoder, Base64Encoder
-from tests.utests.test_decrypt import encrypt_libsodium, encrypt_aes, rstring, pad
-from event_provider.decrypt import get_decryptor
+from tests.utests.test_crypto import encrypt_libsodium, encrypt_aes, rstring, pad
+from event_provider.crypto import get_decryptor
 from .test_database import get_log
 
 CHECK_PATH='/v1/check-bsn'
@@ -70,7 +70,8 @@ def compare_payloads(new, orig):
     assert "other" not in new
     assert "is" not in new
 
-def test_full(rnonce, riv, bob_keys, alice_keys, client, context, backend_db):
+def test_full(rnonce, riv, bob_keys, alice_keys, client, context, backend_db, mocker):
+    mocker.patch("secrets.token_bytes", return_value=b"a"*8)
     bsn_priv = bob_keys['privkey']
     bsn_pub = alice_keys['pubkey']
     bsn_hash = rstring()
@@ -126,6 +127,11 @@ def test_full(rnonce, riv, bob_keys, alice_keys, client, context, backend_db):
         assert len(response.json) > 0
         data = response.json
         compare_payloads(data[0], payload)
+        uniek = data[0]["uniek"].split("-")
+        assert uniek[0] == '00000000'
+        assert uniek[1] == '0000'
+        assert uniek[3] == '6161'
+        assert uniek[4] == '616161616161'
         post = len(get_log(backend_db))
         assert post > pre
         pre = post
