@@ -15,15 +15,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v4
+
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: '3.8'
+          cache: 'pip' # caching pip dependencies
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python3.8 -m pip install --upgrade pip
+
       - name: Lint with pylint
         run: make lint
+
       - name: Audit with bandid
         run: make audit
   tests:
@@ -31,26 +35,34 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v4
+
+      - uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: '3.8'
+          cache: 'pip' # caching pip dependencies
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python3.8 -m pip install --upgrade pip
           make venv
           sudo apt install easy-rsa softhsm2 libsofthsm2 gnutls-bin libengine-pkcs11-openssl php
+
       - name: Create config
         run: cp inge5.conf.dist inge5.conf
+
       - name: Create bsn keypair
         run: |
           mkdir -p secrets
           php -r '$keypair = sodium_crypto_box_keypair(); file_put_contents("secrets/bsn_pub.key", base64_encode(sodium_crypto_box_publickey($keypair))); file_put_contents("secrets/bsn.key", base64_encode(sodium_crypto_box_secretkey($keypair)));'
+
       - name: Create bsn hashkey
         run: |
           tr -dc A-Za-z0-9 </dev/urandom | head -c 20 > secrets/bsn_hash.key
+
       - name: Create database aes256 key
-        run: 
+        run:
           tr -dc A-Za-z0-9 </dev/urandom | head -c 32 > secrets/db.key
+
       - name: Test with unittest
         run: make test
+
