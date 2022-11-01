@@ -9,11 +9,13 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
       - name: Diff configfiles
         run: git diff master~1:inge5.conf.dist inge5.conf.dist > inge5.conf.diff
+
       - name: Send mail
         uses: dawidd6/action-send-mail@v3
         with:
