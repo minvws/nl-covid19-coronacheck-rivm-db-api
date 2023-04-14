@@ -1,7 +1,7 @@
-# inge-5
+# nl-covid19-coronacheck-rivm-db-api (inge-5)
 RIVM Vaccination Event Provider Database Interface
 
-Contacts a database to support the endpoints as described in https://github.com/minvws/nl-covid19-coronacheck-app-coordination/blob/main/docs/providing-vaccination-events.md
+Contacts a database to support the endpoints as described in https://github.com/minvws/nl-covid19-coronacheck-provider-docs/blob/main/docs/data-structures-overview.md
 
 ## Endpoints
 
