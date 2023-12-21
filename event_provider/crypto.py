@@ -88,11 +88,11 @@ def decrypt_aes(enc, key, iv):  # pylint: disable=invalid-name
 def rawkey_from_file(keyfile):
     """Get rawkey from file"""
     try:
-        with open(keyfile, "r") as infile:
+        with open(keyfile, "r", encoding="utf-8") as infile:
             rawkey = infile.read().strip()
     except IOError as error:
         raise IOError(
-            "Fatal: {} file could not be read. " "Aborting.".format(keyfile), error
+           f"Fatal: {keyfile} file could not be read. " "Aborting.", error
         ) from error
 
     return rawkey
