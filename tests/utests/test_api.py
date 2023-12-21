@@ -8,9 +8,9 @@ from cryptography.exceptions import UnsupportedAlgorithm, AlreadyFinalized
 
 def test_no_body(client):
     response = client.post('/v1/check-bsn')
-    assert response.status_code == 400
+    assert response.status_code == 415
     response = client.post('/v1/vaccinaties')
-    assert response.status_code == 400
+    assert response.status_code == 415
 
 @pytest.mark.filterwarnings("ignore::pytest.PytestDeprecationWarning::")
 def test_lacking_body(client, subtests):
