@@ -18,7 +18,7 @@ Any request to the database will be logged to the database.
 	'hashedBsn': {ID_HASH}
 }
 ```
-where `hashedBsn` follows the format as described in the minvws document.
+where `hashedBsn` follows the format as described in the above data-structures document.
 
 It then returns the following data:
 
